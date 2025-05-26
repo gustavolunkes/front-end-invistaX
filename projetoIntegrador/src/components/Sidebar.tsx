@@ -25,7 +25,7 @@ export default function Sidebar() {
   const navigate = useNavigate()
 
   return (
-    <div className={`h-screen bg-zinc-900 text-white flex flex-col transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
+    <div className={`h-screen  bg-zinc-900 text-white flex flex-col transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
       <div className="flex justify-end p-2">
         <button
           onClick={() => {setIsOpen(!isOpen)}}

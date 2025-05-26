@@ -21,7 +21,10 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* ESSENCIAL para seus imports funcionarem */
+    "baseUrl": "./src"
   },
   "include": ["src"]
 }

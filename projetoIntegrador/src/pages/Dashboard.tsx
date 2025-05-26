@@ -2,7 +2,7 @@ import { TrendingUp, Home, DollarSign, BarChart2, Wallet } from 'lucide-react';
 
 function Dashboard() {
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 min-h-screen max-h-screen overflow-y-auto">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
 
       {/* 5 Cards Principais */}
