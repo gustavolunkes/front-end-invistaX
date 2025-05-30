@@ -1,0 +1,28 @@
+import type { AxiosInstance } from "axios"
+import { OwnerAttributes, type OwnerDTOAttributes } from "./owner"
+
+export class OwenerRoute {
+    server: AxiosInstance;
+    route: string
+    constructor(server: AxiosInstance) {
+        this.server = server;
+        this.route = "/owner"
+    }
+
+    async getByOwner(id:number): Promise<OwnerAttributes> {
+        const data = (await this.server.get(this.route + "/" + id)).data;
+        return new OwnerAttributes(data)
+    }
+
+    async createByOwner(owner: OwnerDTOAttributes): Promise<OwnerAttributes> {
+        return (await this.server.post(this.route + "/owner", owner)).data;
+    }
+
+    async updateByOwner(owner:Partial<OwnerDTOAttributes>, id:number): Promise<OwnerAttributes> {
+        return (await this.server.put(this.route + "/owner/" + id, owner)).data;
+    }
+
+    async deleteByOwner(id:number): Promise<void> {
+        return (await this.server.delete(this.route + "/owner/" + id));
+    }
+}

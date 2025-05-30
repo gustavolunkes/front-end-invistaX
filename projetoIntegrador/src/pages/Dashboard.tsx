@@ -1,73 +1,60 @@
+// src/components/Dashboard.tsx (ou onde quer que seu componente Dashboard esteja)
+
 import { useEffect, useState } from 'react';
-import { Home, BarChart2, TrendingUp, DollarSign } from 'lucide-react';
+import { Home, BarChart2, DollarSign } from 'lucide-react'; // Removi TrendingUp se não for usado no layout
+import { api } from '../api/index'; // Importe a instância da sua API centralizada
+import { type DashboardResumo } from '../api/route/dashboard/dashboardRoute'; // Importe a interface para o resumo
 
 function Dashboard() {
-  const [quantidadeImoveis, setQuantidadeImoveis] = useState(null);
-  const [valorTotalPatrimonio, setValorTotalPatrimonio] = useState(null);
-  const [receitaMensal, setReceitaMensal] = useState(null); // estado novo
+  const [dashboardData, setDashboardData] = useState<DashboardResumo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function buscarQuantidade() {
+    async function fetchDashboardData() {
+      setLoading(true);
+      setError(null); // Reseta o erro
       try {
-        const res = await fetch('http://localhost:8080/dashboard/imovel/quantidade');
-        if (!res.ok) throw new Error('Erro na resposta da API: ' + res.status);
-        const data = await res.json();
-        if (typeof data === 'number') {
-          setQuantidadeImoveis(data);
-        } else if (data.quantidade !== undefined) {
-          setQuantidadeImoveis(data.quantidade);
-        } else {
-          setQuantidadeImoveis(0);
-        }
+        // Chamada única para o endpoint de resumo
+        const data = await api.dashboard.getDashboardResumo();
+        setDashboardData(data);
       } catch (err) {
-        setQuantidadeImoveis(0);
+        console.error('Erro ao buscar dados do Dashboard:', err);
+        setError('Não foi possível carregar os dados do dashboard.');
+        setDashboardData(null); // Limpa os dados em caso de erro
+      } finally {
+        setLoading(false);
       }
     }
 
-    async function buscarValorTotal() {
-      try {
-        const res = await fetch('http://localhost:8080/dashboard/valor-total');
-        if (!res.ok) throw new Error('Erro na resposta da API: ' + res.status);
-        const data = await res.json();
-        if (typeof data === 'number') {
-          setValorTotalPatrimonio(data);
-        } else if (data.valor !== undefined) {
-          setValorTotalPatrimonio(data.valor);
-        } else {
-          setValorTotalPatrimonio(0);
-        }
-      } catch (err) {
-        setValorTotalPatrimonio(0);
-      }
-    }
+    fetchDashboardData();
+  }, []); // O array vazio garante que o useEffect rode apenas uma vez ao montar
 
-    async function buscarReceitaMensal() {
-      try {
-        // Ajusta essa URL pro endpoint correto que retorna a receita mensal
-        const res = await fetch('http://localhost:8080/renevue/imovel/total'); 
-        if (!res.ok) throw new Error('Erro na resposta da API: ' + res.status);
-        const data = await res.json();
+  function formatarMoeda(valor: number | null | undefined) { // <<-- Adicione '| undefined' aqui!
+  if (valor === null || valor === undefined) return 'Carregando...'; // <<-- Ajuste a checagem
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
 
-        // Se a API retornar só o número:
-        if (typeof data === 'number') {
-          setReceitaMensal(data);
-        } else if (data.valorTotal !== undefined) {
-          setReceitaMensal(data.valorTotal);
-        } else {
-          setReceitaMensal(0);
-        }
-      } catch (err) {
-        setReceitaMensal(0);
-      }
-    }
+  // Se precisar de alguma outra formatação ou fallback para os números
+  function formatarNumero(valor: number | null | undefined) { // <<-- Adicione '| undefined' aqui!
+  if (valor === null || valor === undefined) return 'Carregando...'; // <<-- Ajuste a checagem
+  return valor.toLocaleString('pt-BR');
+}
 
-    buscarQuantidade();
-    buscarValorTotal();
-    buscarReceitaMensal(); // chama o fetch do novo dado
-  }, []);
+  if (loading) {
+    return (
+      <div className="p-6 text-center text-gray-600">
+        Carregando Dashboard...
+      </div>
+    );
+  }
 
-  function formatarMoeda(valor) {
-    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-600">
+        {error}
+      </div>
+    );
   }
 
   return (
@@ -75,7 +62,6 @@ function Dashboard() {
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        
         {/* Card Total de Imóveis */}
         <div className="bg-white p-6 rounded-lg shadow-sm border-t-4 border-blue-500">
           <div className="flex items-center justify-between mb-2">
@@ -83,7 +69,7 @@ function Dashboard() {
             <Home className="text-blue-500" size={20} />
           </div>
           <p className="text-3xl font-bold text-gray-800">
-            {quantidadeImoveis !== null ? quantidadeImoveis : 'Carregando...'}
+            {formatarNumero(dashboardData?.quantidadeImoveis)}
           </p>
         </div>
 
@@ -94,11 +80,12 @@ function Dashboard() {
             <BarChart2 className="text-purple-500" size={20} />
           </div>
           <p className="text-2xl font-bold text-gray-800 mb-1">
-            {valorTotalPatrimonio !== null ? formatarMoeda(valorTotalPatrimonio) : 'Carregando...'}
+            {formatarMoeda(dashboardData?.valorTotalImoveis)}
           </p>
           <div className="flex items-center text-green-500 text-sm">
-            <TrendingUp size={16} className="mr-1" />
-            <span>↑ 4.5% vs mês anterior</span>
+            {/* O "↑ 4.5% vs mês anterior" é um dado fixo, se for dinâmico, precisaria vir da API */}
+            {/* <TrendingUp size={16} className="mr-1" /> */}
+            <span>Dados mensais não disponíveis</span>
           </div>
         </div>
 
@@ -109,10 +96,10 @@ function Dashboard() {
             <DollarSign className="text-red-500" size={20} />
           </div>
           <p className="text-3xl font-bold text-gray-800">
-            {receitaMensal !== null ? formatarMoeda(receitaMensal) : 'Carregando...'}
+            {formatarMoeda(dashboardData?.receitaTotal)}
           </p>
         </div>
-        
+
       </div>
     </div>
   );
