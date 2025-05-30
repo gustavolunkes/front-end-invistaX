@@ -1,4 +1,4 @@
-import axios, { Axios, type AxiosInstance }  from "axios";
+import axios, { type Axios }  from "axios";
 import { ImovelRoute } from "./route/imovel/imovelRoute";
 import { CityRoute } from "./route/city/cityRoute";
 import { ExpenseRoute } from "./route/expense/expenseRoute";
@@ -6,6 +6,7 @@ import { RenevueRoute } from "./route/renevue/renevueRoute";
 import { OwenerRoute } from "./route/owner/ownerRoute";
 import { UserRoute } from "./route/user/userRoute";
 import { ValuationRoute } from "./route/valuation/valuationRoute";
+
 
 const server = axios.create({
     baseURL: "http://localhost:8080"
