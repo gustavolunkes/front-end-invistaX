@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import Perfil from "./pages/Perfil";
-import Dashboard from "./pages/Dashboard";
 import './App.css'
 import { Layout } from "./components/layout";
 import Imoveis from "./pages/Imoveis";
@@ -12,10 +11,6 @@ export const routerApp = createBrowserRouter([
   {
     element: <Layout/>,
     children: [
-      {
-        element: <Dashboard/>,
-        path: "/dashboard"
-      },
       {
         element: <Imoveis/>,
         path: "/imoveis"

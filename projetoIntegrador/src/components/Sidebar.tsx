@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Home,
+
   Building,
   DollarSign,
   Wallet,
@@ -12,7 +12,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 const menuItems = [
-  { icon: <Home size={20} />, label: 'Dashboard', path: "/dashboard" },
   { icon: <Building size={20} />, label: 'Meus Imóveis', path: "/imoveis" },
   { icon: <DollarSign size={20} />, label: 'Receitas', path: "/receitas" },
   { icon: <Wallet size={20} />, label: 'Despesas', path: "/despesas" },
