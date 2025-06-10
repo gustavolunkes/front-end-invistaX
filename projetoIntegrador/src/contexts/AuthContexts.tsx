@@ -1,112 +1,60 @@
+import React, { createContext, useEffect, useState } from "react";
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
+import { auth } from "../db/auth";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-// Tipos de usuário
-export type UserRole = 'admin' | 'owner';
-
-// Interface do usuário
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-}
-
-// Interface do contexto
-interface AuthContextProps {
-  user: User | null;
+export interface AuthContextProps {
+  user: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  isAdmin: boolean;
+  logout: () => Promise<void>;
 }
 
-// Dados de exemplo para usuários
-const SAMPLE_USERS: User[] = [
-  {
-    id: '1',
-    name: 'Administrador',
-    email: 'admin@exemplo.com',
-    role: 'admin',
-  },
-  {
-    id: '2',
-    name: 'Proprietário Exemplo',
-    email: 'proprietario@exemplo.com',
-    role: 'owner',
-  },
-];
+export const AuthContext = createContext<AuthContextProps | undefined>(
+  undefined
+);
 
-// Criando o contexto
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
-
-// Hook personalizado para usar o contexto
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
-  }
-  return context;
-};
-
-// Provedor do contexto
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [user, setUser] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Verificar usuário no localStorage ao iniciar
   useEffect(() => {
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    setUser(JSON.parse(storedUser));
-  } else {
-    // Simula usuário logado para testes
-    setUser(SAMPLE_USERS[0]); // usuário admin, por exemplo
-    localStorage.setItem('user', JSON.stringify(SAMPLE_USERS[0]));
-  }
-  setIsLoading(false);
-}, []);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser.uid);
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
 
+    return () => unsubscribe();
+  }, []);
 
-  // Função de login (simulada)
-  const login = async (email: string, password: string) => {
+  async function login(email: string, password: string) {
     setIsLoading(true);
     try {
-      // Simula uma requisição de API
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Verifica o usuário pelos dados de exemplo
-      const foundUser = SAMPLE_USERS.find(u => u.email === email);
-      
-      if (foundUser) {
-        setUser(foundUser);
-        localStorage.setItem('user', JSON.stringify(foundUser));
-      } else {
-        throw new Error('Credenciais inválidas');
-      }
-    } catch (error) {
-      throw error;
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      setUser(result.user.uid);
+    } catch (error: any) {
+      console.log("Erro ao fazer login: " + error.message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
-  // Função de logout
-  const logout = () => {
+  async function logout() {
+    await signOut(auth);
     setUser(null);
-    localStorage.removeItem('user');
-  };
+  }
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        login,
-        logout,
-        isAdmin: user?.role === 'admin',
-      }}
-    >
+    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
