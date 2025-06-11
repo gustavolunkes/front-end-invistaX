@@ -1,13 +1,18 @@
-import { Outlet } from "react-router-dom";
-//import { Header } from "../../components/header";
+import { Navigate, Outlet } from "react-router-dom";
 import Sidebar from "../Sidebar";
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/AuthContexts";
 
 export function Layout() {
-    return(
-        <div className="flex">
-        <Sidebar/>
-        <Outlet/>
+  const { user } = useContext(AuthContext);
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-        </div>
-    )
+  return (
+    <div className="flex">
+      <Sidebar />
+      <Outlet />
+    </div>
+  );
 }

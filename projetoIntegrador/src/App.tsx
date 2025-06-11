@@ -1,42 +1,41 @@
 import { createBrowserRouter } from "react-router-dom";
 import Perfil from "./pages/Perfil";
-import Dashboard from "./pages/Dashboard";
-import './App.css'
+import "./App.css";
 import { Layout } from "./components/layout";
 import Imoveis from "./pages/Imoveis";
 import Receitas from "./pages/Receitas";
 import Despesas from "./pages/Despesas";
 import Sair from "./pages/Sair";
+import Login from "./pages/Login";
 
 export const routerApp = createBrowserRouter([
   {
-    element: <Layout/>,
+    element: <Layout />,
     children: [
       {
-        element: <Dashboard/>,
-        path: "/dashboard"
+        element: <Imoveis />,
+        path: "/imoveis",
       },
       {
-        element: <Imoveis/>,
-        path: "/imoveis"
+        element: <Receitas />,
+        path: "/receitas",
       },
       {
-        element: <Receitas/>,
-        path: "/receitas"
+        element: <Despesas />,
+        path: "/despesas",
       },
       {
-        element: <Despesas/>,
-        path: "/despesas"
+        element: <Perfil />,
+        path: "/perfil",
       },
       {
-        element: <Perfil/>,
-        path: "/perfil"
+        element: <Sair />,
+        path: "/sair",
       },
-      {
-        element: <Sair/>,
-        path: "/sair"
-      },
-    ]
-  }
-  
-])
+    ],
+  },
+  {
+    element: <Login />,
+    path: "/login",
+  },
+]);
