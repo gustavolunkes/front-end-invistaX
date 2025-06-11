@@ -7,6 +7,7 @@ import Receitas from "./pages/Receitas";
 import Despesas from "./pages/Despesas";
 import Sair from "./pages/Sair";
 import Login from "./pages/Login";
+import { Dashboard } from "./pages/Dashboard";
 
 export const routerApp = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ export const routerApp = createBrowserRouter([
       {
         element: <Imoveis />,
         path: "/imoveis",
+      },
+      {
+        element: <Dashboard />,
+        path: "/",
       },
       {
         element: <Receitas />,
