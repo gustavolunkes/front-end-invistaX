@@ -7,11 +7,13 @@ import {
   User,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight, 
+  ChartColumn
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const menuItems = [
+  { icon: <ChartColumn size={20} />, label: 'Dashboard', path: "/" },
   { icon: <Building size={20} />, label: 'Meus Imóveis', path: "/imoveis" },
   { icon: <DollarSign size={20} />, label: 'Receitas', path: "/receitas" },
   { icon: <Wallet size={20} />, label: 'Despesas', path: "/despesas" },
