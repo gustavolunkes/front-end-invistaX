@@ -6,7 +6,7 @@ export class OwnerAttributes {
     id: number;
     name: string;
     cpf_cnpj: number;
-    phone: number;
+    phone: string;
     email: string;
     ativo: true;
     address: AddressAttributes;

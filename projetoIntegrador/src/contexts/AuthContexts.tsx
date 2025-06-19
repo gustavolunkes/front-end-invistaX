@@ -4,7 +4,11 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
+<<<<<<< Updated upstream
 import { auth } from "../db/auth";
+=======
+import { auth } from "../db/auth"; // Mudança aqui - importação direta
+>>>>>>> Stashed changes
 
 export interface AuthContextProps {
   user: string | null;
@@ -43,6 +47,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(result.user.uid);
     } catch (error: any) {
       console.log("Erro ao fazer login: " + error.message);
+<<<<<<< Updated upstream
+=======
+      throw error; // <-- Adicione esta linha!
+>>>>>>> Stashed changes
     } finally {
       setIsLoading(false);
     }
@@ -58,4 +66,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       {children}
     </AuthContext.Provider>
   );
+};
+export const useAuth = () => {
+  const context = React.useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
