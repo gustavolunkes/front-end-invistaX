@@ -1,9 +1,5 @@
 import { initializeApp } from "firebase/app";
-<<<<<<< Updated upstream
 import { getAuth } from "firebase/auth";
-=======
-import { getAuth, type Auth } from "firebase/auth";
->>>>>>> Stashed changes
 
 const configBase = {
   apiKey: "AIzaSyAbIQpmJc1Q1HXL3bvtGmIU51gkxm6t5pk",
@@ -15,10 +11,6 @@ const configBase = {
 };
 
 const firebaseApp = initializeApp(configBase);
-<<<<<<< Updated upstream
 const auth = getAuth(firebaseApp);
 
 export { auth };
-=======
-export const auth: Auth = getAuth(firebaseApp);
->>>>>>> Stashed changes
