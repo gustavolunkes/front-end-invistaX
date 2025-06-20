@@ -184,7 +184,7 @@ const Receitas = () => {
         </Card>
       </div>
       {showModal && (
-        <FormReceita type="receita" setShowModal={setShowModal}/>
+        <FormReceita setShowModal={setShowModal} />
       )}
     </MainLayout>
   );

@@ -2,19 +2,30 @@ import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/Card2";
 import { FormReceita } from "../components/ui/formReceita";
+import { FormDespesa } from "../components/ui/FormDespesa";
+import { DespesaDetalhada } from "./DespesaDetalhada"; // Importe o componente
+
+// Defina a interface para Despesa
+interface Despesa {
+  id: number;
+  descricao: string;
+  valor: number;
+  data: string;
+  categoria: string;
+  imovel?: string;
+}
 
 export default function Despesas() {
   const [tab, setTab] = useState("lista");
   const [showModal, setShowModal] = useState(false);
-  const despesas = [
-    { descricao: "Condomínio", valor: 800, imovel: "Apartamento Centro" },
-    {
-      descricao: "Manutenção Ar Condicionado",
-      valor: 450,
-      imovel: "Apartamento Centro",
-    },
-    { descricao: "IPTU", valor: 350, imovel: "Casa Jardim" },
-  ];
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [despesaParaEditar, setDespesaParaEditar] = useState<Despesa | null>(null);
+  const [despesaSelecionada, setDespesaSelecionada] = useState<Despesa | null>(null); // Novo estado
+  const [despesas, setDespesas] = useState<Despesa[]>([
+    { id: 1, descricao: "Condomínio", valor: 800, data: "", categoria: "", imovel: "Apartamento Centro" },
+    { id: 2, descricao: "Manutenção Ar Condicionado", valor: 450, data: "", categoria: "", imovel: "Apartamento Centro" },
+    { id: 3, descricao: "IPTU", valor: 350, data: "", categoria: "", imovel: "Casa Jardim" },
+  ]);
 
   return (
     <div className="p-6 w-full">
@@ -65,36 +76,13 @@ export default function Despesas() {
 
       <div className="bg-white rounded-lg shadow p-4">
         <h2 className="text-xl font-semibold mb-4">Lista de Despesas</h2>
-
-        <div className="flex gap-2 mb-4">
-          <Button
-            className={`px-4 py-2 rounded ${
-              tab === "lista"
-                ? "bg-black text-white"
-                : "bg-zinc-200 text-zinc-700 hover:bg-zinc-300"
-            }`}
-            onClick={() => setTab("lista")}
-          >
-            Lista
-          </Button>
-          <Button
-            className={`px-4 py-2 rounded ${
-              tab === "detalhada"
-                ? "bg-black text-white"
-                : "bg-zinc-200 text-zinc-700 hover:bg-zinc-300"
-            }`}
-            onClick={() => setTab("detalhada")}
-          >
-            Detalhada
-          </Button>
-        </div>
-
         <table className="w-full">
           <thead>
             <tr className="text-left text-sm text-zinc-500 border-b">
               <th className="py-2">Descrição</th>
               <th className="py-2">Bravura</th>
               <th className="py-2">Imóvel</th>
+              <th className="py-2"></th>
             </tr>
           </thead>
           <tbody>
@@ -105,12 +93,62 @@ export default function Despesas() {
                   R$ {item.valor.toFixed(2).replace(".", ",")}
                 </td>
                 <td className="py-2">{item.imovel}</td>
+                <td className="py-2">
+                  <Button
+                    variant="outline"
+                    className="text-xs px-3 py-1"
+                    onClick={() => setDespesaSelecionada(item)}
+                  >
+                    Ver detalhes
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {showModal && <FormReceita type="despesa" setShowModal={setShowModal} />}
+
+      {/* MODAL DE DETALHES */}
+      {despesaSelecionada && (
+        <DespesaDetalhada
+          despesa={despesaSelecionada}
+          onVoltar={() => setDespesaSelecionada(null)}
+          onEditar={() => {
+            setDespesaParaEditar(despesaSelecionada);
+            setShowEditForm(true);
+            setDespesaSelecionada(null);
+          }}
+          onExcluir={() => {
+            setDespesas((prev) => prev.filter((d) => d.id !== despesaSelecionada.id));
+            setDespesaSelecionada(null);
+          }}
+        />
+      )}
+
+      {showModal && (
+        <FormDespesa
+          setShowModal={setShowModal}
+          onSave={(novaDespesa) => {
+            setDespesas((prev) => [
+              ...prev,
+              { ...novaDespesa, id: prev.length ? prev[prev.length - 1].id + 1 : 1 },
+            ]);
+            setShowModal(false);
+          }}
+        />
+      )}
+      {showEditForm && despesaParaEditar && (
+        <FormDespesa
+          setShowModal={setShowEditForm}
+          despesaParaEditar={despesaParaEditar}
+          onSave={(dadosEditados) => {
+            setDespesas((prev) =>
+              prev.map((d) => (d.id === despesaParaEditar.id ? { ...d, ...dadosEditados } : d))
+            );
+            setShowEditForm(false);
+          }}
+        />
+      )}
     </div>
   );
 }
