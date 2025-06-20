@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-import  { useContext } from "react";
-=======
 import { useContext } from "react";
->>>>>>> Stashed changes
 import { Search, User } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -19,13 +15,9 @@ import { AuthContext } from "../../contexts/AuthContexts";
 
 const Header = () => {
   const navigate = useNavigate();
-<<<<<<< Updated upstream
-  const { logout } = useContext(AuthContext);
-=======
   const context = useContext(AuthContext);
 
   const logout = context?.logout ?? (() => {});
->>>>>>> Stashed changes
 
   return (
     <header

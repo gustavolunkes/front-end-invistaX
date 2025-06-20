@@ -3,7 +3,44 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Search, Pencil, Trash2, Tag, Check, X } from "lucide-react";
-import { FormImovel } from "./FormImovel"; 
+import { FormImovel } from "../components/ui/FormImovel";
+
+// Mock de imóveis para exemplo
+const mockImoveis: Imovel[] = [
+  {
+    id: 1,
+    nome: "Apartamento Centro",
+    endereco: "Rua das Flores, 123",
+    valorCompra: 350000,
+    valorAtual: 400000,
+    aluguelMensal: 2000,
+    status: "alugado", // deve ser exatamente "alugado"
+  },
+  {
+    id: 2,
+    nome: "Casa Jardim",
+    endereco: "Av. Brasil, 456",
+    valorCompra: 500000,
+    valorAtual: 550000,
+    aluguelMensal: 2500,
+    status: "vago", // deve ser exatamente "vago"
+  },
+];
+
+// Mock de filtros
+const filtros = [
+  { valor: "todos", label: "Todos" },
+  { valor: "alugados", label: "Alugados" },
+  { valor: "vagos", label: "Vagos" },
+];
+
+// Mock da API
+const Api = {
+  delete: async (url: string) => {
+    // Simula exclusão
+    return new Promise((resolve) => setTimeout(resolve, 500));
+  },
+};
 
 interface Imovel {
   id: number;
@@ -12,106 +49,67 @@ interface Imovel {
   valorCompra: number;
   valorAtual: number;
   aluguelMensal: number;
-  status: 'alugado' | 'vago';
+  status: "alugado" | "vago";
 }
-<<<<<<< Updated upstream
 
-const mockImoveis: Imovel[] = [
-  {
-    id: 1,
-    nome: "Apartamento Centro",
-    endereco: "Rua das Flores, 123 - Centro",
-    valorCompra: 350000,
-    valorAtual: 400000,
-    aluguelMensal: 2500,
-    status: 'vago'
-  },
-  {
-    id: 2,
-    nome: "Casa Jardins",
-    endereco: "Rua dos Jardins, 456 - Jardim Primavera",
-    valorCompra: 500000,
-    valorAtual: 550000,
-    aluguelMensal: 3500,
-    status: 'alugado'
-  },
-  {
-    id: 3,
-    nome: "Sala Comercial",
-    endereco: "Av. Paulista, 789 - Centro",
-    valorCompra: 280000,
-    valorAtual: 290000,
-    aluguelMensal: 2000,
-    status: 'vago'
-  },
-];
-
-export default function Imoveis() {
-  const [busca, setBusca] = useState("");
-  const [filtro, setFiltro] = useState<'todos' | 'alugados' | 'vagos'>('todos');
-  const [imoveis, setImoveis] = useState<Imovel[]>([]);
-  const [showModal, setShowModal] = useState(false); // ✅ Novo estado adicionado
-  const navigate = useNavigate();
-
-=======
-export default ImovelCrud;
 export function ImovelCrud() {
   const [loading, setLoading] = useState(false);
   const [busca, setBusca] = useState("");
-  const [filtro, setFiltro] = useState<'todos' | 'alugados' | 'vagos'>('todos');
+  const [filtro, setFiltro] = useState<"todos" | "alugados" | "vagos">("todos");
   const [imoveis, setImoveis] = useState<Imovel[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [imovelSelecionado, setImovelSelecionado] = useState<Imovel | null>(null);
   const [modoEdicao, setModoEdicao] = useState(false);
   const [imovelParaExcluir, setImovelParaExcluir] = useState<Imovel | null>(null);
   const [loadingExcluir, setLoadingExcluir] = useState(false);
-  
->>>>>>> Stashed changes
+  const [imovelParaEditar, setImovelParaEditar] = useState<Imovel | null>(null);
+  const [showConfirmEdit, setShowConfirmEdit] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
-    setImoveis(mockImoveis);
+    carregarImoveis();
   }, []);
 
-  const imoveisFiltrados = imoveis.filter(imovel => {
-    const buscaMatch = imovel.nome.toLowerCase().includes(busca.toLowerCase()) ||
+  function carregarImoveis() {
+    setImoveis(mockImoveis);
+  }
+
+  const imoveisFiltrados = imoveis.filter((imovel) => {
+    const buscaMatch =
+      imovel.nome.toLowerCase().includes(busca.toLowerCase()) ||
       imovel.endereco.toLowerCase().includes(busca.toLowerCase());
-    const filtroMatch = filtro === 'todos' ||
-      (filtro === 'alugados' && imovel.status === 'alugado') ||
-      (filtro === 'vagos' && imovel.status === 'vago');
+    const filtroMatch =
+      filtro === "todos" ||
+      (filtro === "alugados" && imovel.status === "alugado") ||
+      (filtro === "vagos" && imovel.status === "vago");
     return buscaMatch && filtroMatch;
   });
 
   const formatarMoeda = (valor: number) =>
-    valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-<<<<<<< Updated upstream
-  const filtros = [
-    { label: 'Todos', valor: 'todos' },
-    { label: 'Alugados', valor: 'alugados' },
-    { label: 'Vagos', valor: 'vagos' },
-  ];
-=======
   async function deletarImovel(id: number) {
     try {
       await Api.delete(`/imovel/${id}`);
       carregarImoveis();
     } catch (error) {
-      console.error('Erro ao deletar imóvel:', error);
+      console.error("Erro ao deletar imóvel:", error);
     }
   }
 
-  interface ImovelCardProps {
-    imovel: Imovel;
-    onEdit: (imovel: Imovel) => void;
-    onDelete: (id: number) => void;
-    onViewDetails: (id: number) => void;
-    onLiquidate: (id: number) => void;
+  // Quando clicar em editar:
+  function onEdit(imovel: Imovel) {
+    setImovelParaEditar(imovel);
+    setShowConfirmEdit(true);
   }
 
-  function onEdit(imovel: Imovel) {
-    setImovelSelecionado(imovel);
-    setModoEdicao(true);
-    setShowModal(true);
+  // Quando confirmar no modal:
+  function confirmarEdicao() {
+    setShowConfirmEdit(false);
+    setShowEditForm(true);
   }
 
   function onAdd() {
@@ -128,7 +126,7 @@ export function ImovelCrud() {
     if (!imovelParaExcluir?.id) return;
     setLoadingExcluir(true);
     try {
-      await Api.delete(`/imovel/${imovelParaExcluir.id}`);
+      await deletarImovel(imovelParaExcluir.id);
       setImovelParaExcluir(null);
       carregarImoveis();
     } catch (error) {
@@ -138,148 +136,218 @@ export function ImovelCrud() {
     }
   }
 
-  async function onViewDetails(id: number) {
-    console.log('Ver detalhes do imóvel:', id);
+  function mapImovelToForm(imovel: Imovel) {
+    return {
+      nomeImovel: imovel.nome,
+      dateRegistration: "", // preencha se tiver esse dado
+      valueRegistration: imovel.valorCompra.toString(),
+      ownerId: "",
+      phone: "",
+      ativo: imovel.status === "alugado" ? "true" : "false",
+      street: imovel.endereco, // ajuste se endereço for separado
+      number: "",
+      neighborhood: "",
+      state: "",
+      city: "",
+      cep: "",
+    };
   }
->>>>>>> Stashed changes
+
+  function mapFormToImovel(form: any, id: number): Imovel {
+    return {
+      id,
+      nome: form.nomeImovel,
+      endereco: form.street, // ajuste se necessário
+      valorCompra: Number(form.valueRegistration),
+      valorAtual: Number(form.valueRegistration), // ajuste se tiver campo separado
+      aluguelMensal: 0, // ajuste se tiver campo
+      status: form.ativo === "true" ? "alugado" : "vago",
+    };
+  }
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-6xl mx-auto w-full">
       {/* Modal do formulário de imóvel */}
-      {showModal && <FormImovel setShowModal={setShowModal} />} {/* ✅ Renderização condicional */}
+      {showModal && <FormImovel setShowModal={setShowModal} />}
+
+      {/* Modal de confirmação de exclusão */}
+      {imovelParaExcluir && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">Excluir imóvel</h2>
+            <p>
+              Tem certeza que deseja excluir{" "}
+              <b>{imovelParaExcluir.nome}</b>?
+            </p>
+            <div className="flex gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setImovelParaExcluir(null)}
+                disabled={loadingExcluir}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={confirmarExclusao}
+                disabled={loadingExcluir}
+              >
+                {loadingExcluir ? "Excluindo..." : "Excluir"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmação de edição */}
+      {showConfirmEdit && imovelParaEditar && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">Editar imóvel</h2>
+            <p>
+              Tem certeza que deseja editar <b>{imovelParaEditar.nome}</b>?
+            </p>
+            <div className="flex gap-2 mt-6">
+              <Button variant="outline" onClick={() => setShowConfirmEdit(false)}>
+                Cancelar
+              </Button>
+              <Button className="bg-green-600 text-white hover:bg-green-700" onClick={confirmarEdicao}>
+                Confirmar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmação de logout */}
+      {showConfirmLogout && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">Sair</h2>
+            <p>Tem certeza que deseja sair?</p>
+            <div className="flex gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setShowConfirmLogout(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={() => {
+                  // Aqui você pode redirecionar, limpar auth, etc.
+                  window.location.href = "/login"; // Exemplo: redireciona para login
+                }}
+              >
+                Sair
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cabeçalho */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Imóveis</h1>
         <Button
           className="bg-green-600 hover:bg-green-700 cursor-pointer"
-          onClick={() => setShowModal(true)} // ✅ Ação do botão
+          onClick={onAdd}
         >
           + Adicionar Imóvel
         </Button>
       </div>
 
-      {/* Filtros e busca */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="relative w-full sm:w-1/3">
-          <Search className="absolute left-3 top-2.5 text-gray-500" size={18} />
-          <Input
-            className="pl-10 w-full"
-            placeholder="Buscar imóveis..."
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-          />
-        </div>
-
-        <div className="flex gap-2">
-          {filtros.map(f => (
-            <Button
-              key={f.valor}
-              variant={filtro === f.valor ? "default" : "outline"}
-              className={`px-4 cursor-pointer ${
-                filtro === f.valor ? "bg-green-600 text-white hover:bg-green-700" : "hover:bg-gray-100"
-              }`}
-              onClick={() => setFiltro(f.valor as any)}
-            >
-              {f.label}
-            </Button>
-          ))}
-        </div>
+      {/* Campo de busca com ícone */}
+      <div className="flex items-center gap-2 w-full max-w-xs mb-4">
+        <span className="text-zinc-400">
+          <Search size={20} />
+        </span>
+        <Input
+          type="text"
+          placeholder="Buscar imóvel..."
+          value={busca}
+          onChange={e => setBusca(e.target.value)}
+          className="w-full"
+        />
       </div>
 
       {/* Cartões de imóveis */}
-      <div className="space-y-6">
-        {imoveisFiltrados.map(imovel => (
-          <div key={imovel.id} className="border rounded-xl p-6 shadow-sm w-full">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold">{imovel.nome}</h2>
-                <p className="text-gray-600">{imovel.endereco}</p>
-                <div className="flex items-center gap-2 mt-4">
-                  {imovel.status === 'alugado' ? (
-                    <span className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full flex items-center gap-1">
-                      <Check size={14} /> Alugado
-                    </span>
-                  ) : (
-                    <span className="bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full flex items-center gap-1">
-                      <X size={14} /> Vago
-                    </span>
-                  )}
+      <div className="space-y-4">
+        {imoveisFiltrados.map((imovel) => (
+          <div
+            key={imovel.id}
+            className="border border-zinc-200 bg-white rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 transition hover:shadow"
+          >
+            {/* Imagem do imóvel */}
+            <div className="w-full md:w-32 h-32 bg-zinc-100 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
+              {/* Substitua o src pelo campo da imagem do seu imóvel, se houver */}
+              <img
+                src={imovel.imagemUrl || "https://via.placeholder.com/128x128?text=Imóvel"}
+                alt={imovel.nome}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            {/* Informações do imóvel */}
+            <div className="flex-1 flex flex-col justify-between">
+              <div>
+                <div className="font-semibold text-lg">{imovel.nome}</div>
+                <div className="text-zinc-500 text-sm">{imovel.endereco}</div>
+                <div className="text-green-700 text-base font-bold mt-1">
+                  {formatarMoeda(imovel.valorAtual)}
                 </div>
               </div>
-
-              <div className="space-y-4">
-                <div>
-                  <p className="text-gray-500">Valor da compra</p>
-                  <p className="font-semibold">{formatarMoeda(imovel.valorCompra)}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Valor atual</p>
-                  <p className="font-semibold">{formatarMoeda(imovel.valorAtual)}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Aluguel mensal</p>
-                  <p className="font-semibold text-green-600">{formatarMoeda(imovel.aluguelMensal)}</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3 justify-between">
-                <Button
-                  variant="outline"
-                  className="w-full hover:bg-gray-100"
-                  onClick={() => navigate(`/detalhesimovel/${imovel.id}`)}
-                >
-                  Ver detalhes
-                </Button>
-                <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1 flex gap-2 items-center hover:bg-gray-100">
-                    <Pencil size={16} /> Editar
-                  </Button>
-                  <Button variant="outline" className="flex-1 flex gap-2 items-center text-red-600 hover:text-red-700 hover:bg-red-100">
-                    <Trash2 size={16} /> Excluir
-                  </Button>
-                </div>
-                <Button variant="outline" className="w-full flex gap-2 items-center hover:bg-gray-100">
-                  <Tag size={16} /> Liquidar
-                </Button>
-              </div>
+            </div>
+            {/* Botões de ação */}
+            <div className="flex flex-col items-start gap-2 mt-2 md:mt-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-zinc-500 hover:text-green-600"
+                onClick={() => navigate(`/detalhesimovel/${imovel.id}`)}
+                title="Ver detalhes"
+              >
+                <Search size={18} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-zinc-500 hover:text-blue-600"
+                onClick={() => onEdit(imovel)}
+                title="Editar"
+              >
+                <Pencil size={18} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-zinc-500 hover:text-red-600"
+                onClick={() => onDeleteClick(imovel)}
+                title="Excluir"
+              >
+                <Trash2 size={18} />
+              </Button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Tabela final resumida */}
-      <div className="bg-white rounded-lg shadow p-4 mt-10">
-        <h2 className="text-xl font-semibold mb-4">Resumo dos Imóveis</h2>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-zinc-500 border-b">
-              <th className="py-2">Nome</th>
-              <th className="py-2">Endereço</th>
-              <th className="py-2">Compra</th>
-              <th className="py-2">Atual</th>
-              <th className="py-2">Aluguel</th>
-              <th className="py-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {imoveisFiltrados.map(imovel => (
-              <tr key={imovel.id} className="border-b">
-                <td className="py-2">{imovel.nome}</td>
-                <td className="py-2">{imovel.endereco}</td>
-                <td className="py-2">{formatarMoeda(imovel.valorCompra)}</td>
-                <td className="py-2">{formatarMoeda(imovel.valorAtual)}</td>
-                <td className="py-2">{formatarMoeda(imovel.aluguelMensal)}</td>
-                <td className="py-2">{imovel.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Formulário de edição de imóvel */}
+      {showEditForm && imovelParaEditar && (
+        <FormImovel
+          setShowModal={setShowEditForm}
+          imovelParaEditar={mapImovelToForm(imovelParaEditar)}
+          onSave={(dadosEditados) => {
+            setImoveis((prev) =>
+              prev.map((i) =>
+                i.id === imovelParaEditar.id ? mapFormToImovel(dadosEditados, i.id) : i
+              )
+            );
+            setShowEditForm(false);
+          }}
+        />
+      )}
     </div>
   );
 }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
+export default ImovelCrud;
