@@ -14,7 +14,6 @@ interface Imovel {
   aluguelMensal: number;
   status: 'alugado' | 'vago';
 }
-<<<<<<< Updated upstream
 
 const mockImoveis: Imovel[] = [
   {
@@ -53,21 +52,6 @@ export default function Imoveis() {
   const [showModal, setShowModal] = useState(false); // ✅ Novo estado adicionado
   const navigate = useNavigate();
 
-=======
-export default ImovelCrud;
-export function ImovelCrud() {
-  const [loading, setLoading] = useState(false);
-  const [busca, setBusca] = useState("");
-  const [filtro, setFiltro] = useState<'todos' | 'alugados' | 'vagos'>('todos');
-  const [imoveis, setImoveis] = useState<Imovel[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [imovelSelecionado, setImovelSelecionado] = useState<Imovel | null>(null);
-  const [modoEdicao, setModoEdicao] = useState(false);
-  const [imovelParaExcluir, setImovelParaExcluir] = useState<Imovel | null>(null);
-  const [loadingExcluir, setLoadingExcluir] = useState(false);
-  
->>>>>>> Stashed changes
   useEffect(() => {
     setImoveis(mockImoveis);
   }, []);
@@ -84,64 +68,11 @@ export function ImovelCrud() {
   const formatarMoeda = (valor: number) =>
     valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-<<<<<<< Updated upstream
   const filtros = [
     { label: 'Todos', valor: 'todos' },
     { label: 'Alugados', valor: 'alugados' },
     { label: 'Vagos', valor: 'vagos' },
   ];
-=======
-  async function deletarImovel(id: number) {
-    try {
-      await Api.delete(`/imovel/${id}`);
-      carregarImoveis();
-    } catch (error) {
-      console.error('Erro ao deletar imóvel:', error);
-    }
-  }
-
-  interface ImovelCardProps {
-    imovel: Imovel;
-    onEdit: (imovel: Imovel) => void;
-    onDelete: (id: number) => void;
-    onViewDetails: (id: number) => void;
-    onLiquidate: (id: number) => void;
-  }
-
-  function onEdit(imovel: Imovel) {
-    setImovelSelecionado(imovel);
-    setModoEdicao(true);
-    setShowModal(true);
-  }
-
-  function onAdd() {
-    setImovelSelecionado(null);
-    setModoEdicao(false);
-    setShowModal(true);
-  }
-
-  function onDeleteClick(imovel: Imovel) {
-    setImovelParaExcluir(imovel);
-  }
-
-  async function confirmarExclusao() {
-    if (!imovelParaExcluir?.id) return;
-    setLoadingExcluir(true);
-    try {
-      await Api.delete(`/imovel/${imovelParaExcluir.id}`);
-      setImovelParaExcluir(null);
-      carregarImoveis();
-    } catch (error) {
-      // Trate o erro se quiser
-    } finally {
-      setLoadingExcluir(false);
-    }
-  }
-
-  async function onViewDetails(id: number) {
-    console.log('Ver detalhes do imóvel:', id);
-  }
->>>>>>> Stashed changes
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-6xl mx-auto w-full">
@@ -279,7 +210,3 @@ export function ImovelCrud() {
     </div>
   );
 }
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes

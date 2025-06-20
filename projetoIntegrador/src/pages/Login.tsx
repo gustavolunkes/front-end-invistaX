@@ -5,29 +5,16 @@ import { useContext, useState } from "react";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-<<<<<<< Updated upstream
-=======
-  const [errorMsg, setErrorMsg] = useState(""); // Adicione isso
->>>>>>> Stashed changes
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-<<<<<<< Updated upstream
-=======
-    setErrorMsg(""); // Limpa erro anterior
->>>>>>> Stashed changes
 
     try {
       await login(email, senha);
       navigate("/");
-<<<<<<< Updated upstream
     } catch (error) {
     } finally {
-=======
-    } catch (error: any) {
-      setErrorMsg("Email ou senha inválidos."); // Mostra erro
->>>>>>> Stashed changes
     }
   };
 
@@ -42,12 +29,6 @@ export default function Login() {
         </header>
 
         <main className="space-y-4">
-<<<<<<< Updated upstream
-=======
-          {errorMsg && (
-            <div className="text-red-600 text-sm text-center">{errorMsg}</div>
-          )}
->>>>>>> Stashed changes
           <div>
             <label
               htmlFor="email"
