@@ -13,10 +13,10 @@ export class ValuationRoute {
   async getByIdPropertie(id: Number): Promise<ValuationAttributes[]> {
     return (await this.server.get(this.route + "/valuation/" + id)).data;
   }
+
   async create(
     valuation: ValuationDTOAttributes
   ): Promise<ValuationAttributes> {
-    console.log(valuation);
     return (await this.server.post(this.route + "/valuation", valuation)).data;
   }
 }
