@@ -1,4 +1,5 @@
-import { StateAttributes } from "service/route/state/state"
+import { StateAttributes } from "../state/state";
+
 
 export class CityAttributes {
     id: number;

@@ -10,7 +10,7 @@ export class CityRoute {
         this.route = "/city"
     }
 
-    async getByCity(id: number): Promise<CityAttributes> {
+    async getByState(id: Number): Promise<CityAttributes> {
         const data = (await this.server.get(this.route + "/" + id)).data;
         return new CityAttributes(data);
     }
