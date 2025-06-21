@@ -3,7 +3,7 @@ import { OwnerAttributes } from "../owner/owner";
 import { UserAttributes } from "../user/user";
 
 export class ImovelAttributes {
-  id: number;
+  id_imovel: number;
   nome_imovel: string;
   valueRegistration: number;
   date_Value: string;
@@ -13,7 +13,7 @@ export class ImovelAttributes {
   adress: AddressAttributes;
 
   constructor({
-    id,
+    id_imovel,
     nome_imovel,
     valueRegistration,
     date_Value,
@@ -22,7 +22,7 @@ export class ImovelAttributes {
     user,
     adress,
   }: ImovelAttributes) {
-    this.id = id;
+    this.id_imovel = id_imovel;
     this.nome_imovel = nome_imovel;
     this.valueRegistration = valueRegistration;
     this.date_Value = date_Value;
@@ -46,7 +46,7 @@ export interface ImovelDTOAttributes {
   street: string;
   number: number;
   neighborhood: string;
-  valueRegistration: number;
+  valueRegistration: string;
   dateValue: Date;
   cityId: number;
   cep: number;

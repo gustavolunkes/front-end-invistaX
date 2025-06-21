@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   MapPin,
@@ -30,8 +30,10 @@ import { Api } from "../service/api";
 import { ImovelAttributes } from "../service/route/imovel/imovel";
 import { ValuationAttributes } from "../service/route/valuation/valuation";
 import ValuationForm from "../components/valuation/valuationForm";
+import { AuthContext } from "@/contexts/AuthContexts";
 
 export const DetalhesImovel = () => {
+  const { user } = useContext(AuthContext);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -43,22 +45,23 @@ export const DetalhesImovel = () => {
   const [valuations, setValuations] = useState<ValuationAttributes[]>();
   const api = new Api();
 
-  useState(() => {
-    async function getPropertieById() {
-      const response = await api.imovel.getByImovel(Number(id));
-      setProperty(response);
-    }
-    getPropertieById();
-  });
+  useEffect(() => {
+    const getImoveis = async () => {
+      const response = await api.imovel.getAll(user);
+      const imovel = response.find((item) => item.id_imovel === Number(id));
+      setProperty(imovel);
+    };
+    getImoveis();
+  }, []);
 
-  useState(() => {
+  useEffect(() => {
     async function getValuation() {
       const response = await api.valuation.getByIdPropertie(Number(id));
       setValuation(response[0]);
       setValuations(response);
     }
     getValuation();
-  });
+  }, []);
 
   if (!property) {
     return (
@@ -301,42 +304,43 @@ export const DetalhesImovel = () => {
               </CardContent>
             )}
           </Card>
-          {valuations.length > 1 && (
-            <Card className="lg:col-span-1">
-              <CardHeader>
-                <CardTitle>Histórico de avaliações</CardTitle>
-              </CardHeader>
-              <CardContent className="max-h-[35vh] min-h-[35vh] h-full min overflow-y-auto w-full space-y-2">
-                {valuations.map((valuation) => (
-                  <div
-                    key={valuation.id.toString()}
-                    className=" border-2 p-2 rounded-md hover:bg-gray-100"
-                  >
-                    <a className="cursor-pointer space-y-4">
-                      <div className="flex justify-between">
-                        <div>
-                          <h3 className="text-sm font-medium text-muted-foreground">
-                            Valor de avaliação
-                          </h3>
-                          <p className="text-lg font-medium mt-1">
-                            {formatCurrency(valuation.value.toString())}
-                          </p>
+          {valuations.length > 1 ||
+            (valuations && (
+              <Card className="lg:col-span-1">
+                <CardHeader>
+                  <CardTitle>Histórico de avaliações</CardTitle>
+                </CardHeader>
+                <CardContent className="max-h-[35vh] min-h-[35vh] h-full min overflow-y-auto w-full space-y-2">
+                  {valuations.map((valuation) => (
+                    <div
+                      key={valuation.id.toString()}
+                      className=" border-2 p-2 rounded-md hover:bg-gray-100"
+                    >
+                      <a className="cursor-pointer space-y-4">
+                        <div className="flex justify-between">
+                          <div>
+                            <h3 className="text-sm font-medium text-muted-foreground">
+                              Valor de avaliação
+                            </h3>
+                            <p className="text-lg font-medium mt-1">
+                              {formatCurrency(valuation.value.toString())}
+                            </p>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-medium text-muted-foreground">
+                              Data de avaliação
+                            </h3>
+                            <p className="text-lg flex items-center gap-2 mt-1">
+                              {transformDate(valuation.date.toString())}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-muted-foreground">
-                            Data de avaliação
-                          </h3>
-                          <p className="text-lg flex items-center gap-2 mt-1">
-                            {transformDate(valuation.date.toString())}
-                          </p>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+                      </a>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import { ImovelAttributes } from "@/service/route/imovel/imovel";
 import { Button } from "../../../components/ui/button";
-import { Check, Pencil, Tag, Trash2, X } from "lucide-react";
+import { Pencil, Tag, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const ImovelCard = ({ imovel }: { imovel: ImovelAttributes }) => {
@@ -9,7 +9,10 @@ export const ImovelCard = ({ imovel }: { imovel: ImovelAttributes }) => {
 
   const navigate = useNavigate();
   return (
-    <div key={imovel.id} className="border rounded-xl p-4 shadow-sm w-full">
+    <div
+      key={imovel.id_imovel}
+      className="border rounded-xl p-4 shadow-sm w-full"
+    >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-2">
           <h2 className="text-xl font-semibold">{imovel.nome_imovel}</h2>
@@ -29,7 +32,7 @@ export const ImovelCard = ({ imovel }: { imovel: ImovelAttributes }) => {
           <Button
             variant="outline"
             className="w-full hover:bg-gray-100"
-            onClick={() => navigate(`/imoveis/${imovel.id}`)}
+            onClick={() => navigate(`/imoveis/${imovel.id_imovel}`)}
           >
             Ver detalhes
           </Button>

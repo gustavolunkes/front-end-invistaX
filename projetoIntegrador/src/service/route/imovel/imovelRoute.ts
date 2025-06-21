@@ -15,7 +15,7 @@ export class ImovelRoute {
   }
 
   async getByImovel(id: Number): Promise<ImovelAttributes> {
-    const data = (await this.server.get(this.route + "/" + id)).data;
+    const data = (await this.server.get(this.route + "/" + id))?.data;
     return new ImovelAttributes(data);
   }
 

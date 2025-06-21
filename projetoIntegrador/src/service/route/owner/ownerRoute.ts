@@ -1,7 +1,7 @@
 import type { AxiosInstance } from "axios"
 import { OwnerAttributes, type OwnerDTOAttributes } from "./owner"
 
-export class OwenerRoute {
+export class OwnerRoute {
     server: AxiosInstance;
     route: string
     constructor(server: AxiosInstance) {
@@ -9,9 +9,9 @@ export class OwenerRoute {
         this.route = "/owner"
     }
 
-    async getByOwner(id:number): Promise<OwnerAttributes> {
+    async getByUser(id:string): Promise<OwnerAttributes[]> {
         const data = (await this.server.get(this.route + "/" + id)).data;
-        return new OwnerAttributes(data)
+        return data.map(item => new OwnerAttributes(item))
     }
 
     async createByOwner(owner: OwnerDTOAttributes): Promise<OwnerAttributes> {

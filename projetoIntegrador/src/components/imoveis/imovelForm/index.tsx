@@ -32,10 +32,8 @@ import { cn } from "@/lib/utils";
 import { CommandList } from "cmdk";
 import { CityAttributes } from "@/service/route/city/city";
 import { Api } from "@/service/api";
-import {
-  Imo,
-  PropertiesDTOAttributes,
-} from "@/service/route/properties/properties";
+
+import { ImovelAttributes, ImovelDTOAttributes } from "@/service/route/imovel/imovel";
 import { OwnerAttributes } from "@/service/route/owner/owner";
 import { AuthContext } from "@/contexts/AuthContexts";
 
@@ -98,8 +96,8 @@ const brazilianStates = [
 ];
 
 interface PropertyFormProps {
-  initialData?: PropertiesAttributes | null;
-  onSubmit: (propertieDto: PropertiesDTOAttributes) => void;
+  initialData?: ImovelAttributes | null;
+  onSubmit: (propertieDto: ImovelDTOAttributes) => void;
   isSubmitting?: boolean;
   setOpenDialog?: any;
 }
@@ -113,7 +111,7 @@ export const ImovelForm = ({
   const { user } = useContext(AuthContext);
   const api = new Api();
   const today = new Date().toISOString().split("T")[0];
-  const [propertieDTO, setPropertieDTO] = useState<PropertiesDTOAttributes>({
+  const [propertieDTO, setPropertieDTO] = useState<ImovelDTOAttributes>({
     nomeImovel: "",
     street: "",
     number: 0,
@@ -126,7 +124,7 @@ export const ImovelForm = ({
     ownerId: 0,
   });
 
-  const updateDTO = (field: keyof PropertiesDTOAttributes, value: any) => {
+  const updateDTO = (field: keyof ImovelDTOAttributes, value: any) => {
     setPropertieDTO((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -156,7 +154,7 @@ export const ImovelForm = ({
 
   useEffect(() => {
     async function getOwners() {
-      const response = await api.owner.getOwners();
+      const response = await api.owner.getByUser(user);
       setOwners(response);
     }
     getOwners();
