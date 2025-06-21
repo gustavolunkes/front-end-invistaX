@@ -6,8 +6,9 @@ import Receitas from "./pages/Receitas";
 import Despesas from "./pages/Despesas";
 import Sair from "./pages/Sair";
 import Login from "./pages/Login";
-import { Dashboard } from "./pages/Dashboard";
+import { Dashboard } from "./pages/dashboard";
 import { DetalhesImovel } from "./pages/DetalhesImovel";
+import Proprietarios from "./pages/Proprietarios";
 
 export const routerApp = createBrowserRouter([
   {
@@ -34,8 +35,8 @@ export const routerApp = createBrowserRouter([
         path: "/despesas",
       },
       {
-        element: <Perfil />,
-        path: "/perfil",
+        element: <Proprietarios />,
+        path: "/proprietarios",
       },
       {
         element: <Sair />,
