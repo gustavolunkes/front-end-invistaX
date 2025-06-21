@@ -1,19 +1,21 @@
-interface InputFormProps{
-    label: string
-    type: string
-    placeholder: string
-    setValue: React.Dispatch<React.SetStateAction<string>>
+interface InputFormProps {
+  label: string;
+  type: string;
+  placeholder?: string;
+  value: string | number;
+  setValue: (value: string) => void; // Altere aqui
 }
 
-export function InputForm({label, type, placeholder, setValue}: InputFormProps) {
+export function InputForm({ label, type, placeholder, value, setValue }: InputFormProps) {
   return (
-    <div>
-      <label className="block text-sm font-medium">{label}</label>
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-medium">{label}</label>
       <input
         type={type}
-        onChange={(e) => setValue(e.target.value)}
-        className="w-full mt-1 p-2 border rounded-md bg-zinc-100 text-black"
+        className="border rounded px-3 py-2"
         placeholder={placeholder}
+        value={value}
+        onChange={e => setValue(e.target.value)}
       />
     </div>
   );
