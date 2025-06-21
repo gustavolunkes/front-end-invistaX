@@ -1,23 +1,25 @@
 import { createBrowserRouter } from "react-router-dom";
-import { RouterProvider } from "react-router-dom";
 import Perfil from "./pages/Perfil";
-import "./App.css";
 import { Layout } from "./components/layout";
-import ImovelCrud from "./pages/Imoveis";
+import Imoveis from "./pages/Imoveis";
 import Receitas from "./pages/Receitas";
 import Despesas from "./pages/Despesas";
 import Sair from "./pages/Sair";
 import Login from "./pages/Login";
-import { Dashboard } from "./pages/dashboard";
-import { AuthProvider } from "./contexts/AuthContexts";
+import { Dashboard } from "./pages/Dashboard";
+import { DetalhesImovel } from "./pages/DetalhesImovel";
 
 export const routerApp = createBrowserRouter([
-  { 
+  {
     element: <Layout />,
     children: [
       {
-        element: <ImovelCrud />,
+        element: <Imoveis />,
         path: "/imoveis",
+      },
+      {
+        element: <DetalhesImovel />,
+        path: "/imoveis/:id",
       },
       {
         element: <Dashboard />,
@@ -46,13 +48,3 @@ export const routerApp = createBrowserRouter([
     path: "/login",
   },
 ]);
-
-export function App() {
-  return (
-    <AuthProvider>
-      <RouterProvider router={routerApp} />
-    </AuthProvider>
-  );
-}
-
-export default App;

@@ -1,35 +1,55 @@
-import { OwnerAttributes } from "service/route/owner/owner"
+import { AddressAttributes } from "../address/address";
+import { OwnerAttributes } from "../owner/owner";
 import { UserAttributes } from "../user/user";
 
 export class ImovelAttributes {
-    id: number;
-    nome_imovel: string;
-    valueRegistration: number;
-    localDate: Date;
-    ativo: boolean;
-    owner: OwnerAttributes;
-    user: UserAttributes;
+  id: number;
+  nome_imovel: string;
+  valueRegistration: number;
+  date_Value: string;
+  ativo: boolean;
+  owner: OwnerAttributes;
+  user: UserAttributes;
+  adress: AddressAttributes;
 
-    constructor({id, nome_imovel, valueRegistration, localDate, ativo, owner, user}: ImovelAttributes){
-        this.id = id;
-        this.nome_imovel = nome_imovel;
-        this.valueRegistration = valueRegistration;
-        this.localDate = localDate;
-        this.ativo = ativo;
-        this.owner = new OwnerAttributes(owner);
-        this.user = new UserAttributes(user);
-    }
+  constructor({
+    id,
+    nome_imovel,
+    valueRegistration,
+    date_Value,
+    ativo,
+    owner,
+    user,
+    adress,
+  }: ImovelAttributes) {
+    this.id = id;
+    this.nome_imovel = nome_imovel;
+    this.valueRegistration = valueRegistration;
+    this.date_Value = date_Value;
+    this.ativo = ativo;
+    this.owner = new OwnerAttributes(owner);
+    this.user = new UserAttributes(user);
+    this.adress = new AddressAttributes(adress);
+  }
+
+  formatCurrency() {
+    const numericValue = parseFloat(this.valueRegistration.toString());
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(numericValue);
+  }
 }
 
 export interface ImovelDTOAttributes {
-    nomeImovel: string
-    street: string
-    number: number;
-    neighborhood: string;
-    valueRegistration: number;
-    dateValue: Date;
-    cityId: number;
-    cep: number;
-    userId: string;
-    ownerId: number;
+  nomeImovel: string;
+  street: string;
+  number: number;
+  neighborhood: string;
+  valueRegistration: number;
+  dateValue: Date;
+  cityId: number;
+  cep: number;
+  userId: string;
+  ownerId: number;
 }

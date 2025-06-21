@@ -1,108 +1,382 @@
-// detalhesimovel.tsx
-import { useParams, useNavigate } from "react-router-dom"
-import { Button } from "../components/ui/button"
-import { ArrowLeft, Building2, MapPin, DollarSign } from "lucide-react"
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  MapPin,
+  Edit,
+  Trash2,
+  ArrowLeft,
+  Receipt,
+  Wallet,
+  Plus,
+} from "lucide-react";
+import MainLayout from "../components/layout/MainLayout";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Separator } from "../components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "../components/ui/dialog";
+import { ImovelForm } from "../components/imoveis/imovelForm";
+import { Api } from "../service/api";
+import { ImovelAttributes } from "../service/route/imovel/imovel";
+import { ValuationAttributes } from "../service/route/valuation/valuation";
+import ValuationForm from "../components/valuation/valuationForm";
 
-const mockImoveis = [
-  {
-    id: 1,
-    nome: "Apartamento Centro",
-    endereco: "Rua das Flores, 123 - Centro",
-    tipo: "Apartamento",
-    valorCompra: 350000,
-    valorAtual: 400000,
-    aluguelMensal: 2500,
-    receitaAnual: 30000,
-    despesasAnuais: 9000,
-    roi: 8.57,
-    valorizacao: 14.29,
-  },
-  {
-    id: 2,
-    nome: "Casa Jardins",
-    endereco: "Rua dos Jardins, 456 - Jardim Primavera",
-    tipo: "Casa",
-    valorCompra: 500000,
-    valorAtual: 550000,
-    aluguelMensal: 3500,
-    receitaAnual: 42000,
-    despesasAnuais: 10000,
-    roi: 8.4,
-    valorizacao: 10,
-  },
-]
+export const DetalhesImovel = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-export default function DetalhesImovel() {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  const [openDialogPropertie, setOpenDialogPropertie] = useState(false);
+  const [openDialogValuation, setOpenDialogValuation] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [property, setProperty] = useState<ImovelAttributes>();
+  const [valuation, setValuation] = useState<ValuationAttributes>();
+  const [valuations, setValuations] = useState<ValuationAttributes[]>();
+  const api = new Api();
 
-  const imovel = mockImoveis.find(im => im.id === Number(id))
+  useState(() => {
+    async function getPropertieById() {
+      const response = await api.imovel.getByImovel(Number(id));
+      setProperty(response);
+    }
+    getPropertieById();
+  });
 
-  if (!imovel) {
+  useState(() => {
+    async function getValuation() {
+      const response = await api.valuation.getByIdPropertie(Number(id));
+      setValuation(response[0]);
+      setValuations(response);
+    }
+    getValuation();
+  });
+
+  if (!property) {
     return (
-      <div className="p-6">
-        <p>Imóvel não encontrado.</p>
-        <Button variant="outline" onClick={() => navigate(-1)} className="mt-4">Voltar</Button>
-      </div>
-    )
+      <MainLayout>
+        <div className="flex flex-col items-center justify-center h-full">
+          <h2 className="text-2xl font-bold">Imóvel não encontrado</h2>
+          <Button className="mt-4" onClick={() => navigate("/imoveis")}>
+            Voltar para a lista de imóveis
+          </Button>
+        </div>
+      </MainLayout>
+    );
   }
 
-  const lucroLiquido = imovel.receitaAnual - imovel.despesasAnuais
+  const formatCurrency = (value: string) => {
+    const numericValue = parseFloat(value);
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(numericValue);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Tem certeza que deseja excluir este imóvel?")) {
+      navigate("/properties");
+    }
+  };
+
+  const handleFormSubmit = (data: any) => {
+    setLoading(true);
+
+    setTimeout(() => {
+      setLoading(false);
+      setOpenDialogPropertie(false);
+    }, 1000);
+  };
+
+  const transformDate = (date: string) => {
+    let data = new Date(date + "T00:00:00");
+    const dataFormatada = data.toLocaleDateString("pt-BR");
+    return dataFormatada;
+  };
 
   return (
-    <div className="p-6 w-full">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="cursor-pointer hover:bg-gray-100">
-            <ArrowLeft className="mr-2" size={18} />
-            Voltar
-          </Button>
-          <h1 className="text-2xl font-bold">{imovel.nome}</h1>
+    <MainLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate("/properties")}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="ml-4 text-3xl font-bold tracking-tight">
+              {property.nome_imovel}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setOpenDialogPropertie(true)}
+              className="flex items-center gap-2"
+            >
+              <Edit className="h-4 w-4" />
+              <span>Editar</span>
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleDelete}
+              className="flex items-center gap-2 text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>Excluir</span>
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="default" className="bg-green-600 hover:bg-green-700 cursor-pointer" onClick={() => navigate(`/detalhesimovel/${imovel.id}/receitas`)}>Receitas</Button>
-          <Button variant="outline" className="text-red-600 border-red-600 hover:bg-red-100 cursor-pointer" onClick={() => navigate(`/detalhesimovel/${imovel.id}/despesas`)}>Despesas</Button>
-          <Button variant="outline" className="cursor-pointer hover:bg-gray-100">Editar</Button>
-          <Button variant="ghost" className="text-red-600 hover:bg-red-100 cursor-pointer">Excluir</Button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Informações Gerais</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    Endereço
+                  </h3>
+                  <p className="text-lg flex items-center gap-2 mt-1">
+                    <MapPin className="h-4 w-4" />
+                    {property.adress.toElegant()}
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      Valor de matricula
+                    </h3>
+                    <p className="text-lg font-medium mt-1">
+                      {property.formatCurrency()}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      Data de matricula
+                    </h3>
+                    <p className="text-lg font-medium mt-1">
+                      {transformDate(property.date_Value)}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      Proprietário
+                    </h3>
+                    <p className="text-lg font-medium mt-1">
+                      {property.owner.name}
+                    </p>
+                  </div>
+                </div>
+
+                <Separator />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="lg:col-span-1">
+            <CardHeader>
+              <CardTitle>Análises</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/properties/${id}/incomes`)}
+                  className="flex items-center gap-2"
+                >
+                  <Receipt className="h-4 w-4 text-income" />
+                  <span>Receitas</span>
+                </Button>
+                <Separator />
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/properties/${id}/expenses`)}
+                  className="flex items-center gap-2"
+                >
+                  <Wallet className="h-4 w-4 text-expense" />
+                  <span>Despesas</span>
+                </Button>
+                <Separator />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="lg:col-span-2">
+            <CardHeader className="flex justify-between flex-row">
+              <CardTitle>Avaliação</CardTitle>
+              <Button
+                variant="test"
+                onClick={() => setOpenDialogValuation(true)}
+              >
+                <Plus className="h-5  w-5" />
+              </Button>
+            </CardHeader>
+            {valuation ? (
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground">
+                        Responsável pela avaliação
+                      </h3>
+                      <p className="text-lg flex items-center gap-2 mt-1">
+                        {valuation.nameResponsible}
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground">
+                        Data de avaliação
+                      </h3>
+                      <p className="text-lg flex items-center gap-2 mt-1">
+                        {transformDate(valuation.date.toString())}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground">
+                        Valor de avaliação
+                      </h3>
+                      <p className="text-lg font-medium mt-1">
+                        {formatCurrency(valuation.value.toString())}
+                      </p>
+                    </div>
+                    <a
+                      href={valuation.rotaImage}
+                      target="blank"
+                      download={"avaliacao.pdf"}
+                      className="bg-primary text-primary-foreground hover:bg-primary/900 p-2 cursor-pointer rounded-md"
+                    >
+                      <span>Visualizar avaliação</span>
+                    </a>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        Descrição da avaliação
+                      </h3>
+                      <span className="text-sm mt-1">
+                        {valuation.description}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            ) : (
+              <CardContent>
+                <div className="space-y-4 flex flex-col justify-center items-center">
+                  <h3 className="text-md font-medium text-muted-foreground">
+                    Esse ímovel não possuí nenhuma avaliação!
+                  </h3>
+                  <Button
+                    variant="default"
+                    onClick={() => setOpenDialogValuation(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <span>Fazer avaliação</span>
+                  </Button>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+          {valuations.length > 1 && (
+            <Card className="lg:col-span-1">
+              <CardHeader>
+                <CardTitle>Histórico de avaliações</CardTitle>
+              </CardHeader>
+              <CardContent className="max-h-[35vh] min-h-[35vh] h-full min overflow-y-auto w-full space-y-2">
+                {valuations.map((valuation) => (
+                  <div
+                    key={valuation.id.toString()}
+                    className=" border-2 p-2 rounded-md hover:bg-gray-100"
+                  >
+                    <a className="cursor-pointer space-y-4">
+                      <div className="flex justify-between">
+                        <div>
+                          <h3 className="text-sm font-medium text-muted-foreground">
+                            Valor de avaliação
+                          </h3>
+                          <p className="text-lg font-medium mt-1">
+                            {formatCurrency(valuation.value.toString())}
+                          </p>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-muted-foreground">
+                            Data de avaliação
+                          </h3>
+                          <p className="text-lg flex items-center gap-2 mt-1">
+                            {transformDate(valuation.date.toString())}
+                          </p>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Informações Gerais */}
-        <div className="border p-5 rounded-xl">
-          <h2 className="text-xl font-semibold mb-4">Informações Gerais</h2>
-          <div className="mb-2 text-sm text-gray-600">
-            <p className="flex items-center gap-2"><Building2 size={16} /> {imovel.tipo}</p>
-            <p className="flex items-center gap-2"><MapPin size={16} /> {imovel.endereco}</p>
-          </div>
-          <hr className="my-4" />
-          <div className="text-sm space-y-2">
-            <p><strong>Valor de Compra:</strong> R$ {imovel.valorCompra.toLocaleString()}</p>
-            <p><strong>Valor Atual:</strong> R$ {imovel.valorAtual.toLocaleString()} <span className="text-green-600">↑ {imovel.valorizacao}% de valorização</span></p>
-            <p><strong>Aluguel Mensal:</strong> <span className="text-green-600">R$ {imovel.aluguelMensal.toLocaleString()}</span></p>
-            <p><strong>Retorno sobre Investimento (ROI):</strong> <span className="text-green-600">{imovel.roi}% ao ano</span></p>
-          </div>
-          <Button variant="outline" className="mt-6 w-full flex gap-2 justify-center cursor-pointer hover:bg-gray-100">
-            <DollarSign size={16} />
-            Liquidar este imóvel
-          </Button>
-        </div>
+      <Dialog open={openDialogPropertie} onOpenChange={setOpenDialogPropertie}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Imóvel</DialogTitle>
+            <DialogDescription>
+              Preencha os detalhes do seu imóvel. Todos os campos marcados com *
+              são obrigatórios.
+            </DialogDescription>
+          </DialogHeader>
+          <ImovelForm
+            onSubmit={handleFormSubmit}
+            isSubmitting={loading}
+            initialData={undefined}
+          />
+        </DialogContent>
+      </Dialog>
 
-        {/* Resumo Financeiro */}
-        <div className="border p-5 rounded-xl">
-          <h2 className="text-xl font-semibold mb-4">Resumo Financeiro</h2>
-          <div className="text-sm space-y-4">
-            <p><strong>Receita Anual:</strong> <span className="text-green-600">R$ {imovel.receitaAnual.toLocaleString()}</span></p>
-            <p><strong>Despesas Anuais:</strong> <span className="text-red-600">R$ {imovel.despesasAnuais.toLocaleString()}</span></p>
-            <hr />
-            <p><strong>Lucro Líquido Anual:</strong> <span className="text-black">R$ {lucroLiquido.toLocaleString()}</span></p>
-          </div>
-          <div className="mt-6 flex flex-col gap-2">
-            <Button className="bg-green-600 hover:bg-green-700 w-full cursor-pointer" onClick={() => navigate(`/detalhesimovel/${imovel.id}/receitas`)}>Ver Receitas</Button>
-            <Button className="bg-green-600 hover:bg-green-700 w-full cursor-pointer" onClick={() => navigate(`/detalhesimovel/${imovel.id}/despesas`)}>Ver Despesas</Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+      <Dialog open={openDialogValuation} onOpenChange={setOpenDialogValuation}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Cadastrar nova avaliação</DialogTitle>
+            <DialogDescription>
+              Preencha os detalhes da avaliação. Todos os campos marcados com *
+              são obrigatórios.
+            </DialogDescription>
+          </DialogHeader>
+          <ValuationForm
+            setOpenDialog={setOpenDialogValuation}
+            onSubmit={handleFormSubmit}
+            isSubmitting={loading}
+            id={Number(id)}
+            setValuation={setValuation}
+            setValuations={setValuations}
+            valuations={valuations}
+          />
+        </DialogContent>
+      </Dialog>
+    </MainLayout>
+  );
+};
