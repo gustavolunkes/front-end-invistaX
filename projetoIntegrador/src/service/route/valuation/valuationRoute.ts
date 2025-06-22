@@ -7,16 +7,17 @@ export class ValuationRoute {
 
   constructor(server: AxiosInstance) {
     this.server = server;
-    this.route = "/valuation"
+    this.route = "/valuation";
   }
 
   async getByIdPropertie(id: Number): Promise<ValuationAttributes[]> {
-    return (await this.server.get(this.route + "/valuation/" + id)).data;
+    const data = (await this.server.get(this.route + "/" + id)).data;
+    return data.map((item) => new ValuationAttributes(item));
   }
 
   async create(
     valuation: ValuationDTOAttributes
   ): Promise<ValuationAttributes> {
-    return (await this.server.post(this.route + "/valuation", valuation)).data;
+    return (await this.server.post(this.route, valuation)).data;
   }
 }

@@ -90,7 +90,6 @@ const ValuationForm = ({
         .catch((error) => {
           console.log(error);
         });
-    } else {
     }
     setIsSubmitting(false);
   }

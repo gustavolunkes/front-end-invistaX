@@ -107,13 +107,13 @@ export const DetalhesImovel = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 max-h-[100vh] overflow-y-auto">
+        <div className="flex items-center justify-between ">
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate("/properties")}
+              onClick={() => navigate("/imoveis")}
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -304,6 +304,7 @@ export const DetalhesImovel = () => {
               </CardContent>
             )}
           </Card>
+
           {valuations.length > 1 ||
             (valuations && (
               <Card className="lg:col-span-1">
@@ -340,7 +341,9 @@ export const DetalhesImovel = () => {
                   ))}
                 </CardContent>
               </Card>
+
             ))}
+
         </div>
       </div>
 
