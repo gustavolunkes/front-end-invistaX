@@ -2,12 +2,13 @@ import { useState, useEffect, useContext } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Search, Plus } from "lucide-react";
-import { FormProprietario } from "../components/proprietarios/FormProprietario";
-import { ProprietarioCard } from "../components/proprietarios/ProprietarioCard";
+import { FormProprietario } from "../components/proprietarios/FormProprietario/index";
+import { ProprietarioCard } from "../components/proprietarios/CardProprietaio";
 import { OwnerDTOAttributes } from "@/service/route/owner/owner";
 import { Api } from "@/service/api";
 import { AuthContext } from "@/contexts/AuthContexts";
-import { DetalhesProprietario } from "../components/proprietarios/DetalhesProprietario";
+import { DetalhesProprietario } from "../components/proprietarios/DetalhesProprietaio/index";
+import { PageLayout } from "../components/layout/PageLayout";
 
 export default function Proprietarios() {
   const { user } = useContext(AuthContext);
@@ -26,7 +27,7 @@ export default function Proprietarios() {
 
   useEffect(() => {
     const getProprietarios = async () => {
-      const response = await api.owner.getByOwner(Number(user));
+      const response = await api.owner.getByUser(String(user));
       // Adapte os campos do OwnerAttributes para OwnerDTOAttributes
       const adaptado = Array.isArray(response)
         ? response.map((item) => ({
@@ -80,7 +81,18 @@ export default function Proprietarios() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 mx-auto w-full max-h-screen overflow-y-auto">
+    <PageLayout 
+      title="Proprietários"
+      rightContent={
+        <Button
+          className="bg-green-600 hover:bg-green-700 cursor-pointer text-white flex items-center gap-2"
+          onClick={() => setShowModal(true)}
+        >
+          <Plus size={20} />
+          Adicionar Proprietário
+        </Button>
+      }
+    >
       {showModal && (
         <FormProprietario
           setShowModal={setShowModal}
@@ -113,6 +125,7 @@ export default function Proprietarios() {
           }}
         />
       )}
+      
       {/* Modal de confirmação de exclusão */}
       {showConfirmDelete && proprietarioParaExcluir && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
@@ -130,7 +143,7 @@ export default function Proprietarios() {
                   setProprietarioParaExcluir(null);
                 }}
               >
-                Sim, excluir
+                Sim
               </Button>
               <Button
                 variant="outline"
@@ -145,16 +158,7 @@ export default function Proprietarios() {
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Proprietários</h1>
-        <Button
-          className="bg-green-600 hover:bg-green-700 cursor-pointer text-white"
-          onClick={() => setShowModal(true)}
-        >
-          <Plus size={24} />
-          Adicionar Proprietário
-        </Button>
-      </div>
+      
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative w-full sm:w-1/3">
           <Search className="absolute left-3 top-2.5 text-gray-500" size={18} />
@@ -166,6 +170,7 @@ export default function Proprietarios() {
           />
         </div>
       </div>
+      
       <div className="space-y-6 mt-6">
         <h2 className="text-2xl font-bold">Lista de Proprietários</h2>
         <div className="bg-white rounded-xl shadow p-4">
@@ -176,7 +181,6 @@ export default function Proprietarios() {
                 <th className="text-left p-3 font-semibold text-gray-500">CPF/CNPJ</th>
                 <th className="text-left p-3 font-semibold text-gray-500">Telefone</th>
                 <th className="text-left p-3 font-semibold text-gray-500">E-mail</th>
-                <th className="text-left p-3 font-semibold text-gray-500">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -186,7 +190,7 @@ export default function Proprietarios() {
                 <td className="p-3">987.654.321-00</td>
                 <td className="p-3">(21) 99876-5432</td>
                 <td className="p-3">maria.oliveira@email.com</td>
-                <td className="p-3">
+                <td className="p-3 text-right">
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -224,7 +228,7 @@ export default function Proprietarios() {
                   <td className="p-3">{proprietario.cpf_cnpj}</td>
                   <td className="p-3">{proprietario.phone}</td>
                   <td className="p-3">{proprietario.email}</td>
-                  <td className="p-3">
+                  <td className="p-3 text-right">
                     <Button
                       variant="outline"
                       onClick={() => {
@@ -241,6 +245,6 @@ export default function Proprietarios() {
           </table>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }

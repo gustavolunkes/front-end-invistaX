@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "../../ui/button";
+import { Input } from "../../ui/input";
 
 interface Props {
   setShowModal: Dispatch<SetStateAction<boolean>>;

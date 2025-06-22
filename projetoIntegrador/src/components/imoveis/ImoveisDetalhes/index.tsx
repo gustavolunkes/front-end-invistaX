@@ -9,27 +9,27 @@ import {
   Wallet,
   Plus,
 } from "lucide-react";
-import MainLayout from "../components/layout/MainLayout";
+import MainLayout from "../../layout/MainLayout";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Separator } from "../components/ui/separator";
+} from "../../ui/card";
+import { Button } from "../../ui/button";
+import { Separator } from "../../ui/separator";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "../components/ui/dialog";
-import { ImovelForm } from "../components/imoveis/imovelForm";
-import { Api } from "../service/api";
-import { ImovelAttributes } from "../service/route/imovel/imovel";
-import { ValuationAttributes } from "../service/route/valuation/valuation";
-import ValuationForm from "../components/valuation/valuationForm";
+} from "../../ui/dialog";
+import { ImovelForm } from "../imovelForm";
+import { Api } from "../../../service/api";
+import { ImovelAttributes } from "../../../service/route/imovel/imovel";
+import { ValuationAttributes } from "../../../service/route/valuation/valuation";
+import ValuationForm from "../../valuation/valuationForm";
 import { AuthContext } from "@/contexts/AuthContexts";
 
 export const DetalhesImovel = () => {

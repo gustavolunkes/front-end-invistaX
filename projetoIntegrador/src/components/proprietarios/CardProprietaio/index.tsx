@@ -1,5 +1,5 @@
 import { OwnerDTOAttributes } from "@/service/route/owner/owner";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";

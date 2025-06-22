@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Home, MapPin, User } from "lucide-react";
+import { Home, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,7 +14,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import {
   Popover,
   PopoverContent,
@@ -32,7 +31,6 @@ import { cn } from "@/lib/utils";
 import { CommandList } from "cmdk";
 import { CityAttributes } from "@/service/route/city/city";
 import { Api } from "@/service/api";
-
 import { ImovelAttributes, ImovelDTOAttributes } from "@/service/route/imovel/imovel";
 import { OwnerAttributes } from "@/service/route/owner/owner";
 import { AuthContext } from "@/contexts/AuthContexts";
@@ -52,7 +50,6 @@ const formSchema = z.object({
   street: z
     .string()
     .min(2, { message: "Rua deve ter pelo menos 2 caracteres" }),
-
   neighborhood: z
     .string()
     .min(2, { message: "Bairro deve ter pelo menos 2 caracteres" }),
@@ -60,7 +57,7 @@ const formSchema = z.object({
   city: z.string().min(2, { message: "Cidade é obrigatória" }),
   state: z.string().min(2, { message: "Estado é obrigatório" }),
   cep: z.string().min(5, { message: "CEP é obrigatório" }),
-  owner: z.string().min(1, "Proprietário é obrigátorio"),
+  owner: z.string().min(1, "Proprietário é obrigatório"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -95,19 +92,17 @@ const brazilianStates = [
   { id: 27, value: "TO", label: "Tocantins" },
 ];
 
-interface PropertyFormProps {
-  initialData?: ImovelAttributes | null;
-  onSubmit: (propertieDto: ImovelDTOAttributes) => void;
-  isSubmitting?: boolean;
-  setOpenDialog?: any;
+interface ImovelFormProps {
+  setShowModal: (show: boolean) => void;
+  imovelParaEditar?: ImovelAttributes | null;
+  onSave?: (dadosEditados: ImovelDTOAttributes) => void;
 }
 
 export const ImovelForm = ({
-  initialData,
-  onSubmit,
-  isSubmitting = false,
-  setOpenDialog,
-}: PropertyFormProps) => {
+  setShowModal,
+  imovelParaEditar,
+  onSave,
+}: ImovelFormProps) => {
   const { user } = useContext(AuthContext);
   const api = new Api();
   const today = new Date().toISOString().split("T")[0];
@@ -142,10 +137,11 @@ export const ImovelForm = ({
       neighborhood: "",
       owner: "",
     },
-  }); 
+  });
 
   const [city, setCity] = useState<CityAttributes[]>([]);
   const [owners, setOwners] = useState<OwnerAttributes[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleCity(id: Number) {
     const response = await api.city.getByState(id);
@@ -160,376 +156,438 @@ export const ImovelForm = ({
     getOwners();
   }, []);
 
+  const handleSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
+    try {
+      if (imovelParaEditar) {
+        // Modo edição
+        if (onSave) {
+          onSave(propertieDTO);
+        }
+      } else {
+        // Modo criação
+        await api.imovel.createByImovel(propertieDTO);
+      }
+      setShowModal(false);
+    } catch (error) {
+      console.error("Erro ao salvar imóvel:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setShowModal(false);
+  };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(() => onSubmit(propertieDTO))}
-        className="space-y-8"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <Home className="mr-2 h-5 w-5" />
-                Informações Básicas
-              </h3>
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="bg-gray-100 text-gray-800 p-6 rounded-t-2xl relative border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-gray-200 p-3 rounded-full">
+                <Home size={32} className="text-gray-600" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-gray-800">
+                  {imovelParaEditar ? "Editar Imóvel" : "Cadastrar Novo Imóvel"}
+                </h2>
+                <p className="text-gray-600">
+                  {imovelParaEditar
+                    ? "Altere as informações do imóvel"
+                    : "Preencha os dados do imóvel"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-              <div className="space-y-2">
-                <FormField
-                  control={form.control}
-                  name="nomeImovel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome do Imóvel</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Apartamento Centro"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            updateDTO("nomeImovel", e.target.value);
-                          }}
+        {/* Content */}
+        <div className="p-6">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-8"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardContent className="pt-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                      <Home className="mr-2 h-5 w-5" />
+                      Informações Básicas
+                    </h3>
+
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="nomeImovel"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nome do Imóvel</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Apartamento Centro"
+                                {...field}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  updateDTO("nomeImovel", e.target.value);
+                                }}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Um nome para identificar seu imóvel
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="dateValue"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Data da Matrícula</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="date"
+                                  {...field}
+                                  max={today}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    updateDTO("dateValue", new Date(e.target.value));
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormDescription>
-                        Um nome para identificar seu imóvel
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="dateValue"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Data da Matrícula</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="date"
-                            {...field}
-                            max={today}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              updateDTO("dateValue", new Date(e.target.value));
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        <FormField
+                          control={form.control}
+                          name="valueRegistration"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Valor da Matrícula (R$)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  {...field}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    updateDTO("valueRegistration", e.target.value);
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
-                  <FormField
-                    control={form.control}
-                    name="valueRegistration"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Valor da Matrícula (R$)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              updateDTO("valueRegistration", e.target.value);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="owner"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Proprietário</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              className={cn(
-                                "w-full justify-between",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value
-                                ? owners.find(
-                                    (owner) => owner.name === field.value
-                                  )?.name
-                                : "Selecione um proprietário"}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="flex p-2">
-                          <Command>
-                            <CommandInput placeholder="Buscar proprietário..." />
-                            <CommandEmpty className="grid grid-cols-1 space-y-2">
-                              <span>Nenhum proprietário cadastrado.</span>
-                              <Button>Cadastrar</Button>
-                            </CommandEmpty>
-                            <CommandList className="max-h-48 overflow-y-auto">
-                              <CommandGroup>
-                                {owners.map((owner) => (
-                                  <CommandItem
-                                    key={owner.id.toString()}
-                                    value={owner.name}
-                                    onSelect={(e) => {
-                                      field.onChange(e);
-                                      updateDTO("ownerId", owner.id);
-                                    }}
+                      <FormField
+                        control={form.control}
+                        name="owner"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Proprietário</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className={cn(
+                                      "w-full justify-between",
+                                      !field.value && "text-muted-foreground"
+                                    )}
                                   >
-                                    {owner.name}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
+                                    {field.value
+                                      ? owners.find(
+                                          (owner) => owner.name === field.value
+                                        )?.name
+                                      : "Selecione um proprietário"}
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-full p-0">
+                                <Command>
+                                  <CommandInput placeholder="Buscar proprietário..." />
+                                  <CommandEmpty className="p-4 text-center">
+                                    <span className="text-gray-500">
+                                      Nenhum proprietário encontrado.
+                                    </span>
+                                  </CommandEmpty>
+                                  <CommandList className="max-h-48 overflow-y-auto">
+                                    <CommandGroup>
+                                      {owners.map((owner) => (
+                                        <CommandItem
+                                          key={owner.id.toString()}
+                                          value={owner.name}
+                                          onSelect={(e) => {
+                                            field.onChange(e);
+                                            updateDTO("ownerId", owner.id);
+                                          }}
+                                        >
+                                          {owner.name}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
 
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <MapPin className="mr-2 h-5 w-5" />
-                Localização e Características
-              </h3>
+                <Card>
+                  <CardContent className="pt-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                      <MapPin className="mr-2 h-5 w-5" />
+                      Localização
+                    </h3>
 
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="street"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Rua</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Nome da rua"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              updateDTO("street", e.target.value);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="number"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Número</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="123"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              updateDTO("number", e.target.value);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-4">
-                  <FormField
-                    control={form.control}
-                    name="neighborhood"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Bairro</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Nome do bairro"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              updateDTO("neighborhood", e.target.value);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-
-
-                  <FormField
-                    control={form.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Estado</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-full justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value
-                                  ? brazilianStates.find(
-                                      (state) => state.value === field.value
-                                    )?.label
-                                  : "Selecione um estado"}
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-full p-0">
-                            <Command>
-                              <CommandInput placeholder="Buscar estado..." />
-                              <CommandEmpty>
-                                Nenhum estado encontrado.
-                              </CommandEmpty>
-                              <CommandList className="max-h-48 overflow-y-auto">
-                                <CommandGroup>
-                                  {brazilianStates.map((state) => (
-                                    <CommandItem
-                                      key={state.value}
-                                      value={state.value}
-                                      onSelect={() => {
-                                        form.setValue("state", state.value);
-                                        handleCity(state.id);
-                                      }}
-                                    >
-                                      {state.label}
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-               
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cidade</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-full justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value
-                                  ? city.find(
-                                      (city) => city.nome === field.value
-                                    )?.nome
-                                  : "Selecione uma cidade"}
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-full p-0">
-                            <Command>
-                              <CommandInput placeholder="Buscar cidade..." />
-                              <CommandEmpty>
-                                Nenhuma cidade encontrada.
-                              </CommandEmpty>
-                              <CommandList className="max-h-48 overflow-y-auto">
-                                <CommandGroup>
-                                  {city.map((city) => (
-                                    <CommandItem
-                                      key={city.nome}
-                                      value={city.nome}
-                                      onSelect={(e) => {
-                                        field.onChange(e);
-                                        updateDTO("cityId", city.id);
-                                      }}
-                                    >
-                                      {city.nome}
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                <FormField
-                  control={form.control}
-                  name="cep"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CEP</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="00000-000"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            updateDTO("cep", e.target.value);
-                          }}
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="street"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Rua</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Nome da rua"
+                                  {...field}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    updateDTO("street", e.target.value);
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        <div className="flex justify-end gap-4">
-          <Button
-            variant="outline"
-            type="button"
-            onClick={() => setOpenDialog(false)}
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Salvando..." : "Salvar Imóvel"}
-          </Button>
+                        <FormField
+                          control={form.control}
+                          name="number"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Número</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="123"
+                                  {...field}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    updateDTO("number", Number(e.target.value));
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="neighborhood"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Bairro</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Nome do bairro"
+                                {...field}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  updateDTO("neighborhood", e.target.value);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="state"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Estado</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className={cn(
+                                      "w-full justify-between",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value
+                                      ? brazilianStates.find(
+                                          (state) => state.value === field.value
+                                        )?.label
+                                      : "Selecione um estado"}
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-full p-0">
+                                <Command>
+                                  <CommandInput placeholder="Buscar estado..." />
+                                  <CommandEmpty>
+                                    Nenhum estado encontrado.
+                                  </CommandEmpty>
+                                  <CommandList className="max-h-48 overflow-y-auto">
+                                    <CommandGroup>
+                                      {brazilianStates.map((state) => (
+                                        <CommandItem
+                                          key={state.value}
+                                          value={state.value}
+                                          onSelect={() => {
+                                            form.setValue("state", state.value);
+                                            handleCity(state.id);
+                                          }}
+                                        >
+                                          {state.label}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Cidade</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className={cn(
+                                      "w-full justify-between",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value
+                                      ? city.find(
+                                          (c) => c.nome === field.value
+                                        )?.nome
+                                      : "Selecione uma cidade"}
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-full p-0">
+                                <Command>
+                                  <CommandInput placeholder="Buscar cidade..." />
+                                  <CommandEmpty>
+                                    Nenhuma cidade encontrada.
+                                  </CommandEmpty>
+                                  <CommandList className="max-h-48 overflow-y-auto">
+                                    <CommandGroup>
+                                      {city.map((c) => (
+                                        <CommandItem
+                                          key={c.nome}
+                                          value={c.nome}
+                                          onSelect={(e) => {
+                                            field.onChange(e);
+                                            updateDTO("cityId", c.id);
+                                          }}
+                                        >
+                                          {c.nome}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="cep"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>CEP</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="00000-000"
+                                {...field}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  updateDTO(
+                                    "cep",
+                                    Number(e.target.value.replace(/\D/g, ""))
+                                  );
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="flex justify-center gap-4 pt-8">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-green-600 hover:bg-green-700 px-8"
+                >
+                  {isSubmitting
+                    ? "Salvando..."
+                    : imovelParaEditar
+                    ? "Salvar Alterações"
+                    : "Cadastrar Imóvel"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="px-8"
+                  onClick={handleCancel}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </form>
+          </Form>
         </div>
-      </form>
-    </Form>
+      </div>
+    </div>
   );
 };
 

@@ -4,10 +4,9 @@ import { Layout } from "./components/layout";
 import Imoveis from "./pages/Imoveis";
 import Receitas from "./pages/Receitas";
 import Despesas from "./pages/Despesas";
-import Sair from "./pages/Sair";
 import Login from "./pages/Login";
-import { Dashboard } from "./pages/dashboard";
-import { DetalhesImovel } from "./pages/DetalhesImovel";
+import { Dashboard } from "./pages/Dashboard";
+import { DetalhesImovel } from "./components/imoveis/ImoveisDetalhes";
 import Proprietarios from "./pages/Proprietarios";
 
 export const routerApp = createBrowserRouter([
@@ -39,8 +38,8 @@ export const routerApp = createBrowserRouter([
         path: "/proprietarios",
       },
       {
-        element: <Sair />,
-        path: "/sair",
+        element: <Perfil />,
+        path: "/perfil",
       },
     ],
   },
