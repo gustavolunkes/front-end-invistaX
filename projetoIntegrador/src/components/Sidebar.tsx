@@ -18,7 +18,6 @@ const menuItems = [
   { icon: <DollarSign size={20} />, label: 'Receitas', path: "/receitas" },
   { icon: <Wallet size={20} />, label: 'Despesas', path: "/despesas" },
   { icon: <User size={20} />, label: 'Proprietarios', path: "/proprietarios" },
-  { icon: <LogOut size={20} />, label: 'Sair', path: "/sair" },
 ];
 
 export default function Sidebar() {

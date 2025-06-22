@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Home, BarChart2, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
+import { PageLayout } from "../components/layout/PageLayout";
+
 Chart.register(...registerables);
 
 type ApiResponse = {
@@ -23,7 +25,7 @@ export function Dashboard() {
     despesas: [4000, 5000, 5500, 6000, 7500, 7800]
   });
 
-    const opcoesComuns = {
+  const opcoesComuns = {
     responsive: true,
     plugins: {
       legend: {
@@ -147,15 +149,15 @@ export function Dashboard() {
   }
 
   async function buscarDadosMensais() {
-  try {
-    const res = await fetch('http://localhost:8080/dashboard/mensal');
-    const data = await res.json();
-    setDadosMensais(data);
-  } catch (err) {
-    console.error("Erro ao buscar dados mensais:", err);
-    // Mantém os dados mockados em caso de erro
+    try {
+      const res = await fetch('http://localhost:8080/dashboard/mensal');
+      const data = await res.json();
+      setDadosMensais(data);
+    } catch (err) {
+      console.error("Erro ao buscar dados mensais:", err);
+      // Mantém os dados mockados em caso de erro
+    }
   }
-}
 
   useEffect(() => {
     // Carrega todos os dados quando o componente monta
@@ -164,7 +166,6 @@ export function Dashboard() {
     buscarReceitaMensal();
     buscarDespesaMensal();
     buscarDadosMensais();
-
   }, []);
 
   // Função para formatar moeda
@@ -182,9 +183,7 @@ export function Dashboard() {
   const saldoMensal = (receitaMensal || 0) - (despesaMensal || 0);
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen max-h-screen overflow-y-auto w-full">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
-
+    <PageLayout title="Dashboard">
       {/* Cards de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total de Imóveis */}
@@ -260,7 +259,7 @@ export function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
 

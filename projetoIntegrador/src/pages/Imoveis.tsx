@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Search, Plus } from "lucide-react";
-import { FormImovel } from "./FormImovel";
+import { ImovelForm } from "../components/imoveis/imovelForm/index";
 import { ImovelCard } from "../components/imoveis/imoveisCard";
 import {
   ImovelAttributes,
@@ -10,6 +10,7 @@ import {
 } from "@/service/route/imovel/imovel";
 import { Api } from "@/service/api";
 import { AuthContext } from "@/contexts/AuthContexts";
+import { PageLayout } from "../components/layout/PageLayout";
 
 export default function Imoveis() {
   const { user } = useContext(AuthContext);
@@ -34,18 +35,20 @@ export default function Imoveis() {
   });
 
   return (
-    <div className="flex flex-col gap-6 p-6 mx-auto w-full max-h-screen overflow-y-auto">
-      {showModal && <FormImovel setShowModal={setShowModal} />}{" "}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Imóveis</h1>
+    <PageLayout
+      title="Imóveis"
+      rightContent={
         <Button
-          className="bg-green-600 hover:bg-green-700 cursor-pointer text-white"
-          onClick={() => setShowModal(true)} // ✅ Ação do botão
+          className="bg-green-600 hover:bg-green-700 cursor-pointer text-white flex items-center gap-2"
+          onClick={() => setShowModal(true)}
         >
-          <Plus size={24} />
+          <Plus size={20} />
           Adicionar Imóvel
         </Button>
-      </div>
+      }
+    >
+      {showModal && <ImovelForm setShowModal={setShowModal} />}
+
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative w-full sm:w-1/3">
           <Search className="absolute left-3 top-2.5 text-gray-500" size={18} />
@@ -57,11 +60,12 @@ export default function Imoveis() {
           />
         </div>
       </div>
+
       <div className="space-y-6">
         {imoveisFiltrados.map((imovel) => (
           <ImovelCard key={imovel.nome_imovel} imovel={imovel} />
         ))}
       </div>
-    </div>
+    </PageLayout>
   );
 }
