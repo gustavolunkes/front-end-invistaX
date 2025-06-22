@@ -57,7 +57,6 @@ export const DetalhesImovel = () => {
   useEffect(() => {
     async function getValuation() {
       const response = await api.valuation.getByIdPropertie(Number(id));
-      console.log(response);
       setValuation(response[0]);
       setValuations(response);
     }
@@ -305,7 +304,8 @@ export const DetalhesImovel = () => {
               </CardContent>
             )}
           </Card>
-          {/* {valuations.length > 1 ||
+
+          {valuations.length > 1 ||
             (valuations && (
               <Card className="lg:col-span-1">
                 <CardHeader>
@@ -341,7 +341,9 @@ export const DetalhesImovel = () => {
                   ))}
                 </CardContent>
               </Card>
-            ))} */}
+
+            ))}
+
         </div>
       </div>
 
