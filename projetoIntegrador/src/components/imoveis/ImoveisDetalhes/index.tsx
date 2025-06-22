@@ -10,12 +10,7 @@ import {
   Plus,
 } from "lucide-react";
 import MainLayout from "../../layout/MainLayout";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Separator } from "../../ui/separator";
 import {
@@ -31,7 +26,7 @@ import { ImovelAttributes } from "../../../service/route/imovel/imovel";
 import { ValuationAttributes } from "../../../service/route/valuation/valuation";
 import ValuationForm from "../../valuation/valuationForm";
 import { AuthContext } from "@/contexts/AuthContexts";
-
+import { PageLayout } from "@/components/layout/PageLayout";
 export const DetalhesImovel = () => {
   const { user } = useContext(AuthContext);
   const { id } = useParams();
@@ -106,7 +101,7 @@ export const DetalhesImovel = () => {
   };
 
   return (
-    <MainLayout>
+    <PageLayout title={property.nome_imovel}>
       <div className="space-y-6 max-h-[100vh] overflow-y-auto">
         <div className="flex items-center justify-between ">
           <div className="flex items-center gap-2">
@@ -117,9 +112,6 @@ export const DetalhesImovel = () => {
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="ml-4 text-3xl font-bold tracking-tight">
-              {property.nome_imovel}
-            </h1>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -216,7 +208,6 @@ export const DetalhesImovel = () => {
                   <Wallet className="h-4 w-4 text-expense" />
                   <span>Despesas</span>
                 </Button>
-                <Separator />
               </div>
             </CardContent>
           </Card>
@@ -267,7 +258,7 @@ export const DetalhesImovel = () => {
                       href={valuation.rotaImage}
                       target="blank"
                       download={"avaliacao.pdf"}
-                      className="bg-primary text-primary-foreground hover:bg-primary/900 p-2 cursor-pointer rounded-md"
+                      className="bg-primary text-primary-foreground p-2 cursor-pointer rounded-md"
                     >
                       <span>Visualizar avaliação</span>
                     </a>
@@ -305,17 +296,20 @@ export const DetalhesImovel = () => {
             )}
           </Card>
 
-          {valuations.length > 1 ||
-            (valuations && (
-              <Card className="lg:col-span-1">
-                <CardHeader>
-                  <CardTitle>Histórico de avaliações</CardTitle>
-                </CardHeader>
-                <CardContent className="max-h-[35vh] min-h-[35vh] h-full min overflow-y-auto w-full space-y-2">
-                  {valuations.map((valuation) => (
-                    <div
+          {valuations.length > 1 && (
+            <Card className="lg:col-span-1">
+              <CardHeader>
+                <CardTitle>Histórico de avaliações</CardTitle>
+              </CardHeader>
+              <CardContent className="max-h-[35vh] min-h-[35vh] h-full overflow-y-auto w-full space-y-4">
+                {valuations.map((valuation) => (
+                  <div className="space-y-2">
+                    <a
+                      href={valuation.rotaImage}
+                      target="blank"
+                      download={"avaliacao.pdf"}
                       key={valuation.id.toString()}
-                      className=" border-2 p-2 rounded-md hover:bg-gray-100"
+                      className="hover:bg-gray-300"
                     >
                       <a className="cursor-pointer space-y-4">
                         <div className="flex justify-between">
@@ -337,13 +331,13 @@ export const DetalhesImovel = () => {
                           </div>
                         </div>
                       </a>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-
-            ))}
-
+                    </a>
+                    <Separator />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 
@@ -356,11 +350,7 @@ export const DetalhesImovel = () => {
               são obrigatórios.
             </DialogDescription>
           </DialogHeader>
-          <ImovelForm
-            onSubmit={handleFormSubmit}
-            isSubmitting={loading}
-            initialData={undefined}
-          />
+          <ImovelForm imovelParaEditar={property}/>
         </DialogContent>
       </Dialog>
 
@@ -384,6 +374,6 @@ export const DetalhesImovel = () => {
           />
         </DialogContent>
       </Dialog>
-    </MainLayout>
+    </PageLayout>
   );
 };

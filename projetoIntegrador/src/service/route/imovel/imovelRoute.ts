@@ -20,7 +20,7 @@ export class ImovelRoute {
   }
 
   async createByImovel(imovel: ImovelDTOAttributes): Promise<ImovelAttributes> {
-    return (await this.server.post(this.route + "/imovel", imovel)).data;
+    return (await this.server.post(this.route, imovel)).data;
   }
 
   async deleteByImovel(id: number): Promise<void> {
