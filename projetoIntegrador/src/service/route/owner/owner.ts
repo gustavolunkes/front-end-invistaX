@@ -38,9 +38,9 @@ export interface OwnerDTOAttributes {
   phone: string;
   email: string;
   street: string;
-  number: Number;
+  number: number;
   neighborhood: string;
-  cep: Number;
+  cep: number;
   userId: string;
   cityId: number;
 }

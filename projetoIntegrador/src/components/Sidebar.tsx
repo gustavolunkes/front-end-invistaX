@@ -17,8 +17,7 @@ const menuItems = [
   { icon: <Building size={20} />, label: 'Meus Imóveis', path: "/imoveis" },
   { icon: <DollarSign size={20} />, label: 'Receitas', path: "/receitas" },
   { icon: <Wallet size={20} />, label: 'Despesas', path: "/despesas" },
-  { icon: <User size={20} />, label: 'Perfil', path: "/perfil" },
-  { icon: <LogOut size={20} />, label: 'Sair', path: "/sair" },
+  { icon: <User size={20} />, label: 'Proprietarios', path: "/proprietarios" },
 ];
 
 export default function Sidebar() {
