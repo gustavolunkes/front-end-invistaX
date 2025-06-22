@@ -31,7 +31,10 @@ import { cn } from "@/lib/utils";
 import { CommandList } from "cmdk";
 import { CityAttributes } from "@/service/route/city/city";
 import { Api } from "@/service/api";
-import { ImovelAttributes, ImovelDTOAttributes } from "@/service/route/imovel/imovel";
+import {
+  ImovelAttributes,
+  ImovelDTOAttributes,
+} from "@/service/route/imovel/imovel";
 import { OwnerAttributes } from "@/service/route/owner/owner";
 import { AuthContext } from "@/contexts/AuthContexts";
 
@@ -93,19 +96,25 @@ const brazilianStates = [
 ];
 
 interface ImovelFormProps {
-  setShowModal: (show: boolean) => void;
+  imoveis?: ImovelAttributes[];
+  setShowModal?: (show: boolean) => void;
+  setImoveis?: (imoveis: ImovelAttributes[]) => void;
   imovelParaEditar?: ImovelAttributes | null;
-  onSave?: (dadosEditados: ImovelDTOAttributes) => void;
+  onSave?: (dadosEditados: Partial<ImovelDTOAttributes>) => void;
 }
 
 export const ImovelForm = ({
+  imoveis,
   setShowModal,
+  setImoveis,
   imovelParaEditar,
   onSave,
 }: ImovelFormProps) => {
   const { user } = useContext(AuthContext);
   const api = new Api();
   const today = new Date().toISOString().split("T")[0];
+  const [imovelEditDTO, setImovelEditDTO] =
+    useState<Partial<ImovelDTOAttributes>>();
   const [propertieDTO, setPropertieDTO] = useState<ImovelDTOAttributes>({
     nomeImovel: "",
     street: "",
@@ -120,22 +129,26 @@ export const ImovelForm = ({
   });
 
   const updateDTO = (field: keyof ImovelDTOAttributes, value: any) => {
+    if (imovelParaEditar) {
+      setImovelEditDTO((prev) => ({ ...prev, [field]: value }));
+      return;
+    }
     setPropertieDTO((prev) => ({ ...prev, [field]: value }));
   };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      cep: "",
-      city: "",
-      dateValue: "",
-      nomeImovel: "",
-      number: "",
-      state: "",
-      street: "",
-      valueRegistration: "",
-      neighborhood: "",
-      owner: "",
+      cep: imovelParaEditar.adress.cep.toString() || "",
+      city: imovelParaEditar.adress.city.nome || "",
+      dateValue: imovelParaEditar.date_Value || "",
+      nomeImovel: imovelParaEditar.nome_imovel || "",
+      number: imovelParaEditar.adress.number.toString() || "",
+      state: imovelParaEditar.adress.city.state.name || "",
+      street: imovelParaEditar.adress.street || "",
+      valueRegistration: imovelParaEditar.valueRegistration.toString() || "",
+      neighborhood: imovelParaEditar.adress.neighborhood || "",
+      owner: imovelParaEditar.owner.name || "",
     },
   });
 
@@ -160,13 +173,14 @@ export const ImovelForm = ({
     setIsSubmitting(true);
     try {
       if (imovelParaEditar) {
-        // Modo edição
-        if (onSave) {
-          onSave(propertieDTO);
-        }
+        const response = await api.imovel.updateByIMovel(
+          imovelEditDTO,
+          imovelParaEditar.id_imovel
+        );
+        setImoveis([...imoveis, response]);
       } else {
-        // Modo criação
-        await api.imovel.createByImovel(propertieDTO);
+        const response = await api.imovel.createByImovel(propertieDTO);
+        setImoveis([...imoveis, response]);
       }
       setShowModal(false);
     } catch (error) {
@@ -258,7 +272,10 @@ export const ImovelForm = ({
                                   max={today}
                                   onChange={(e) => {
                                     field.onChange(e);
-                                    updateDTO("dateValue", new Date(e.target.value));
+                                    updateDTO(
+                                      "dateValue",
+                                      new Date(e.target.value)
+                                    );
                                   }}
                                 />
                               </FormControl>
@@ -281,7 +298,10 @@ export const ImovelForm = ({
                                   {...field}
                                   onChange={(e) => {
                                     field.onChange(e);
-                                    updateDTO("valueRegistration", e.target.value);
+                                    updateDTO(
+                                      "valueRegistration",
+                                      e.target.value
+                                    );
                                   }}
                                 />
                               </FormControl>
@@ -497,9 +517,8 @@ export const ImovelForm = ({
                                     )}
                                   >
                                     {field.value
-                                      ? city.find(
-                                          (c) => c.nome === field.value
-                                        )?.nome
+                                      ? city.find((c) => c.nome === field.value)
+                                          ?.nome
                                       : "Selecione uma cidade"}
                                   </Button>
                                 </FormControl>
@@ -590,4 +609,3 @@ export const ImovelForm = ({
     </div>
   );
 };
-

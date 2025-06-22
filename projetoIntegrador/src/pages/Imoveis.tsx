@@ -47,7 +47,13 @@ export default function Imoveis() {
         </Button>
       }
     >
-      {showModal && <ImovelForm setShowModal={setShowModal} />}
+      {showModal && (
+        <ImovelForm
+          setShowModal={setShowModal}
+          setImoveis={setImoveis}
+          imoveis={imoveis}
+        />
+      )}
 
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative w-full sm:w-1/3">
