@@ -146,7 +146,7 @@ export const DetalhesImovel = () => {
                   </h3>
                   <p className="text-lg flex items-center gap-2 mt-1">
                     <MapPin className="h-4 w-4" />
-                    {property.adress.toElegant()}
+                    {property.adress?.toElegant() || ""}
                   </p>
                 </div>
 
@@ -341,18 +341,13 @@ export const DetalhesImovel = () => {
         </div>
       </div>
 
-      <Dialog open={openDialogPropertie} onOpenChange={setOpenDialogPropertie}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Editar Imóvel</DialogTitle>
-            <DialogDescription>
-              Preencha os detalhes do seu imóvel. Todos os campos marcados com *
-              são obrigatórios.
-            </DialogDescription>
-          </DialogHeader>
-          <ImovelForm imovelParaEditar={property}/>
-        </DialogContent>
-      </Dialog>
+      {openDialogPropertie && (
+        <ImovelForm
+          imovelParaEditar={property}
+          setShowModal={setOpenDialogPropertie}
+          setImovel={setProperty}
+        />
+      )}
 
       <Dialog open={openDialogValuation} onOpenChange={setOpenDialogValuation}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
