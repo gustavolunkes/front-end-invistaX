@@ -5,16 +5,21 @@ import { useContext, useState } from "react";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const { login } = useContext(AuthContext);
+  const [errorMsg, setErrorMsg] = useState(""); // Adicione isso
+  const auth = useContext(AuthContext);
+
+  const login = auth?.login ?? (() => Promise.reject("AuthContext não disponível"));
+
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(""); // Limpa erro anterior
 
     try {
       await login(email, senha);
       navigate("/");
-    } catch (error) {
-    } finally {
+    } catch (error: any) {
+      setErrorMsg("Email ou senha inválidos."); // Mostra erro
     }
   };
 
@@ -29,6 +34,9 @@ export default function Login() {
         </header>
 
         <main className="space-y-4">
+          {errorMsg && (
+            <div className="text-red-600 text-sm text-center">{errorMsg}</div>
+          )}
           <div>
             <label
               htmlFor="email"

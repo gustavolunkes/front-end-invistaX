@@ -173,6 +173,7 @@ export function Dashboard() {
   async function buscarDadosMensais() {
     try {
       const res = await fetch('http://localhost:8081/dashboard/mensal');
+
       const data = await res.json();
       setDadosMensais(data);
     } catch (err) {
@@ -302,6 +303,7 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+
     </PageLayout>
   );
 }

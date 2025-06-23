@@ -4,7 +4,7 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
-import { auth } from "../db/auth";
+import { auth } from "../db/auth"; // Mudança aqui - importação direta
 
 export interface AuthContextProps {
   user: string | null;
@@ -43,6 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(result.user.uid);
     } catch (error: any) {
       console.log("Erro ao fazer login: " + error.message);
+      throw error; // <-- Adicione esta linha!
     } finally {
       setIsLoading(false);
     }

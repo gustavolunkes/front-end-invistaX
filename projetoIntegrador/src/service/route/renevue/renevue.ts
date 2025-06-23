@@ -1,4 +1,5 @@
-import { ImovelAttributes } from "service/route/imovel/imovel";
+import { ImovelAttributes } from "../imovel/imovel";
+
 
 export class RenevueAttributes {
 
