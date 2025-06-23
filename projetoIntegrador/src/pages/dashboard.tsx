@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Home, BarChart2, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
+import { PageLayout } from "../components/layout/PageLayout";
+
 Chart.register(...registerables);
 
 type ApiResponse = {
@@ -23,7 +25,7 @@ export function Dashboard() {
     despesas: [4000, 5000, 5500, 6000, 7500, 7800]
   });
 
-    const opcoesComuns = {
+  const opcoesComuns = {
     responsive: true,
     plugins: {
       legend: {
@@ -62,6 +64,28 @@ export function Dashboard() {
     }]
   };
 
+  const dadosGraficoPerformance = {
+    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+    datasets: [{
+      label: 'Performance',
+      data:  [5300000, 5350000, 5320000, 5100000, 5420000, 5450000],
+      backgroundColor: 'rgba(34, 197, 94, 0.7)',
+      borderColor: 'rgba(34, 197, 94, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  const dadosGraficoINCC = {
+    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+    datasets: [{
+      label: 'INCC',
+      data:  [5300000, 5350000, 5320000, 5600000, 5420000, 5750000],
+      backgroundColor: 'rgba(34, 197, 94, 0.7)',
+      borderColor: 'rgba(34, 197, 94, 1)',
+      borderWidth: 1
+    }]
+  };
+
   // Dados para o gráfico de despesas
   const dadosGraficoDespesas = {
     labels: dadosMensais.meses,
@@ -82,7 +106,7 @@ export function Dashboard() {
 
   async function buscarQuantidadeImoveis() {
     try {
-      const data = await fetchData('http://localhost:8080/dashboard/imovel/quantidade');
+      const data = await fetchData('http://localhost:8081/dashboard/imovel/quantidade');
       
       if (typeof data === 'number') {
         setQuantidadeImoveis(data);
@@ -98,7 +122,7 @@ export function Dashboard() {
 
   async function buscarValorTotalPatrimonio() {
     try {
-      const data = await fetchData('http://localhost:8080/dashboard/valor-total');
+      const data = await fetchData('http://localhost:8081/dashboard/valor-total');
       
       if (typeof data === 'number') {
         setValorTotalPatrimonio(data);
@@ -116,7 +140,7 @@ export function Dashboard() {
 
   async function buscarReceitaMensal() {
     try {
-      const data = await fetchData('http://localhost:8080/revenue/imovel/total');
+      const data = await fetchData('http://localhost:8081/revenue/imovel/total');
       
       if (typeof data === 'number') {
         setReceitaMensal(data);
@@ -132,7 +156,7 @@ export function Dashboard() {
 
   async function buscarDespesaMensal() {
     try {
-      const data = await fetchData('http://localhost:8080/expenses/imovel/total');
+      const data = await fetchData('http://localhost:8081/expenses/imovel/total');
       
       if (typeof data === 'number') {
         setDespesaMensal(data);
@@ -147,15 +171,15 @@ export function Dashboard() {
   }
 
   async function buscarDadosMensais() {
-  try {
-    const res = await fetch('http://localhost:8080/dashboard/mensal');
-    const data = await res.json();
-    setDadosMensais(data);
-  } catch (err) {
-    console.error("Erro ao buscar dados mensais:", err);
-    // Mantém os dados mockados em caso de erro
+    try {
+      const res = await fetch('http://localhost:8081/dashboard/mensal');
+      const data = await res.json();
+      setDadosMensais(data);
+    } catch (err) {
+      console.error("Erro ao buscar dados mensais:", err);
+      // Mantém os dados mockados em caso de erro
+    }
   }
-}
 
   useEffect(() => {
     // Carrega todos os dados quando o componente monta
@@ -164,7 +188,6 @@ export function Dashboard() {
     buscarReceitaMensal();
     buscarDespesaMensal();
     buscarDadosMensais();
-
   }, []);
 
   // Função para formatar moeda
@@ -182,9 +205,7 @@ export function Dashboard() {
   const saldoMensal = (receitaMensal || 0) - (despesaMensal || 0);
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen max-h-screen overflow-y-auto w-full">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
-
+    <PageLayout title="Dashboard">
       {/* Cards de Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total de Imóveis */}
@@ -260,7 +281,28 @@ export function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Gráfico de Receitas */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            Performance
+          </h2>
+          <div >
+            <Bar data={dadosGraficoPerformance} options={opcoesComuns} />
+          </div>
+        </div>
+
+        {/* Gráfico de Despesas */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            INCC
+          </h2>
+          <div >
+            <Bar data={dadosGraficoINCC} options={opcoesComuns} />
+          </div>
+        </div>
+      </div>
+    </PageLayout>
   );
 }
 
