@@ -99,6 +99,7 @@ interface ImovelFormProps {
   imoveis?: ImovelAttributes[];
   setShowModal?: (show: boolean) => void;
   setImoveis?: (imoveis: ImovelAttributes[]) => void;
+  setImovel?: (imovel: ImovelAttributes) => void;
   imovelParaEditar?: ImovelAttributes | null;
   onSave?: (dadosEditados: Partial<ImovelDTOAttributes>) => void;
 }
@@ -107,6 +108,7 @@ export const ImovelForm = ({
   imoveis,
   setShowModal,
   setImoveis,
+  setImovel,
   imovelParaEditar,
   onSave,
 }: ImovelFormProps) => {
@@ -139,16 +141,16 @@ export const ImovelForm = ({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      cep: imovelParaEditar.adress.cep.toString() || "",
-      city: imovelParaEditar.adress.city.nome || "",
-      dateValue: imovelParaEditar.date_Value || "",
-      nomeImovel: imovelParaEditar.nome_imovel || "",
-      number: imovelParaEditar.adress.number.toString() || "",
-      state: imovelParaEditar.adress.city.state.name || "",
-      street: imovelParaEditar.adress.street || "",
-      valueRegistration: imovelParaEditar.valueRegistration.toString() || "",
-      neighborhood: imovelParaEditar.adress.neighborhood || "",
-      owner: imovelParaEditar.owner.name || "",
+      cep: imovelParaEditar?.adress.cep.toString() || "",
+      city: imovelParaEditar?.adress.city.nome || "",
+      dateValue: imovelParaEditar?.date_Value || "",
+      nomeImovel: imovelParaEditar?.nome_imovel || "",
+      number: imovelParaEditar?.adress.number.toString() || "",
+      state: imovelParaEditar?.adress.city.state.name || "",
+      street: imovelParaEditar?.adress.street || "",
+      valueRegistration: imovelParaEditar?.valueRegistration.toString() || "",
+      neighborhood: imovelParaEditar?.adress.neighborhood || "",
+      owner: imovelParaEditar?.owner.name || "",
     },
   });
 
@@ -177,7 +179,8 @@ export const ImovelForm = ({
           imovelEditDTO,
           imovelParaEditar.id_imovel
         );
-        setImoveis([...imoveis, response]);
+        console.log(response);
+        setImovel(response);
       } else {
         const response = await api.imovel.createByImovel(propertieDTO);
         setImoveis([...imoveis, response]);
@@ -583,6 +586,14 @@ export const ImovelForm = ({
 
               <div className="flex justify-center gap-4 pt-8">
                 <Button
+                  type="button"
+                  variant="outline"
+                  className="px-8"
+                  onClick={handleCancel}
+                >
+                  Cancelar
+                </Button>
+                <Button
                   type="submit"
                   disabled={isSubmitting}
                   className="bg-green-600 hover:bg-green-700 px-8"
@@ -592,14 +603,6 @@ export const ImovelForm = ({
                     : imovelParaEditar
                     ? "Salvar Alterações"
                     : "Cadastrar Imóvel"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="px-8"
-                  onClick={handleCancel}
-                >
-                  Cancelar
                 </Button>
               </div>
             </form>

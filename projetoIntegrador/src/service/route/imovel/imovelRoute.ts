@@ -24,13 +24,14 @@ export class ImovelRoute {
   }
 
   async deleteByImovel(id: number): Promise<void> {
-    return await this.server.delete(this.route + "/imovel/" + id);
+    return await this.server.delete(this.route + id);
   }
 
   async updateByIMovel(
     imovel: Partial<ImovelDTOAttributes>,
     id: number
   ): Promise<ImovelAttributes> {
-    return (await this.server.put(this.route + "/imovel/" + id, imovel)).data;
+    const data = (await this.server.put(this.route + "/" + id, imovel)).data;
+    return new ImovelAttributes(data);
   }
 }
