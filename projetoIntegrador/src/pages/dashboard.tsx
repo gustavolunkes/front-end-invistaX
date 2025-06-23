@@ -64,6 +64,28 @@ export function Dashboard() {
     }]
   };
 
+  const dadosGraficoPerformance = {
+    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+    datasets: [{
+      label: 'Performance',
+      data:  [5300000, 5350000, 5320000, 5100000, 5420000, 5450000],
+      backgroundColor: 'rgba(34, 197, 94, 0.7)',
+      borderColor: 'rgba(34, 197, 94, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  const dadosGraficoINCC = {
+    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+    datasets: [{
+      label: 'INCC',
+      data:  [5300000, 5350000, 5320000, 5600000, 5420000, 5750000],
+      backgroundColor: 'rgba(34, 197, 94, 0.7)',
+      borderColor: 'rgba(34, 197, 94, 1)',
+      borderWidth: 1
+    }]
+  };
+
   // Dados para o gráfico de despesas
   const dadosGraficoDespesas = {
     labels: dadosMensais.meses,
@@ -84,7 +106,7 @@ export function Dashboard() {
 
   async function buscarQuantidadeImoveis() {
     try {
-      const data = await fetchData('http://localhost:8080/dashboard/imovel/quantidade');
+      const data = await fetchData('http://localhost:8081/dashboard/imovel/quantidade');
       
       if (typeof data === 'number') {
         setQuantidadeImoveis(data);
@@ -100,7 +122,7 @@ export function Dashboard() {
 
   async function buscarValorTotalPatrimonio() {
     try {
-      const data = await fetchData('http://localhost:8080/dashboard/valor-total');
+      const data = await fetchData('http://localhost:8081/dashboard/valor-total');
       
       if (typeof data === 'number') {
         setValorTotalPatrimonio(data);
@@ -118,7 +140,7 @@ export function Dashboard() {
 
   async function buscarReceitaMensal() {
     try {
-      const data = await fetchData('http://localhost:8080/revenue/imovel/total');
+      const data = await fetchData('http://localhost:8081/revenue/imovel/total');
       
       if (typeof data === 'number') {
         setReceitaMensal(data);
@@ -134,7 +156,7 @@ export function Dashboard() {
 
   async function buscarDespesaMensal() {
     try {
-      const data = await fetchData('http://localhost:8080/expenses/imovel/total');
+      const data = await fetchData('http://localhost:8081/expenses/imovel/total');
       
       if (typeof data === 'number') {
         setDespesaMensal(data);
@@ -150,7 +172,8 @@ export function Dashboard() {
 
   async function buscarDadosMensais() {
     try {
-      const res = await fetch('http://localhost:8080/dashboard/mensal');
+      const res = await fetch('http://localhost:8081/dashboard/mensal');
+
       const data = await res.json();
       setDadosMensais(data);
     } catch (err) {
@@ -259,6 +282,28 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Gráfico de Receitas */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            Performance
+          </h2>
+          <div >
+            <Bar data={dadosGraficoPerformance} options={opcoesComuns} />
+          </div>
+        </div>
+
+        {/* Gráfico de Despesas */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            INCC
+          </h2>
+          <div >
+            <Bar data={dadosGraficoINCC} options={opcoesComuns} />
+          </div>
+        </div>
+      </div>
+
     </PageLayout>
   );
 }
